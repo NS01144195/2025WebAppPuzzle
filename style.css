@@ -1,0 +1,23 @@
+/* ===== 全体 ===== */
+body {
+  background-color: #1b1b1b;
+  color: #fff;
+  font-family: "Segoe UI", sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+
+#game-container {
+  width: 1280px;
+  height: 720px;
+  background: #222;
+  border-radius: 20px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+}
