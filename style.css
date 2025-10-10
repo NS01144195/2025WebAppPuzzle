@@ -56,3 +56,11 @@ body {
 #title-screen button:hover {
   background: #7cf;
 }
+
+/* ===== gameScene ===== */
+#game-screen {
+  position: relative;
+  background: #333;
+  padding: 20px;
+  box-sizing: border-box;
+}
