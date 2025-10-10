@@ -1,0 +1,143 @@
+/* ===== 全体 ===== */
+body {
+  background-color: #1b1b1b;
+  color: #fff;
+  font-family: "Segoe UI", sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+
+#game-container {
+  width: 1280px;
+  height: 720px;
+  background: #222;
+  border-radius: 20px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+}
+
+/* ===== 画面切り替え用 ===== */
+.screen {
+  display: none;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.screen.active {
+  display: flex;
+}
+
+/* ===== タイトル画面 ===== */
+#title-screen h1 {
+  font-size: 64px;
+  margin-bottom: 40px;
+}
+
+#title-screen button {
+  font-size: 28px;
+  padding: 16px 60px;
+  background: #5af;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  color: white;
+  transition: 0.2s;
+}
+
+#title-screen button:hover {
+  background: #7cf;
+}
+
+/* ===== ゲーム画面 ===== */
+#hud {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 60px;
+  font-size: 24px;
+}
+
+#board {
+  width: 500px;
+  height: 500px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  grid-template-rows: repeat(9, 1fr);
+  gap: 4px;
+  background: #111;
+  border-radius: 12px;
+  padding: 8px;
+}
+
+/* ===== ピース ===== */
+.piece {
+  /* ピースの位置を data-x/data-y に基づいてCSS Gridで決定 */
+  /* data-x (列) */
+  grid-column: attr(data-x); 
+  /* data-y (行) */
+  grid-row: attr(data-y);    
+    
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  cursor: pointer;
+
+  /* 重要な修正: 落下とスワップアニメーション用のトランジションを定義 */
+  /* grid-column/grid-row の変更を 0.4秒かけてアニメーションさせる */
+  /* transform も 0.2秒かけてアニメーションさせる (スワップ用) */
+  transition: 
+    grid-column 0.4s ease-out, 
+    grid-row 0.4s ease-out, 
+    transform 0.2s; 
+}
+
+.piece:hover {
+  transform: scale(1.1);
+}
+
+/* ===== コントロールボタン ===== */
+#controls {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  padding-bottom: 30px;
+}
+
+#controls button {
+  font-size: 20px;
+  padding: 12px 40px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  background: #44aaff;
+  color: white;
+  transition: 0.2s;
+}
+
+#controls button:hover {
+  background: #66ccff;
+}
+
+/* ===== リザルト画面 ===== */
+#result-screen h2 {
+  font-size: 48px;
+}
+
+#result-screen button {
+  margin-top: 40px;
+  font-size: 24px;
+  padding: 12px 60px;
+  background: #5af;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+}
