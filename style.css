@@ -110,9 +110,38 @@ body {
     overflow: hidden;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
     background-color: #555;
+    position: relative; /* セルとピースをボード内で自由に配置するための基準 */
 }
 
-#game-screen #puzzle-board .cell {
+#puzzle-board .cell {
     border: 1px solid #777;
     background-color: #333;
+    position: relative;
+    z-index: 1;
+    background-color: transparent; 
+    cursor: pointer;
 }
+
+/* 共通のピース表現 */
+#puzzle-board .piece {
+    position: absolute; 
+    top: 5%;
+    left: 5%;
+    width: 90%;
+    height: 90%;
+
+    border-radius: 50%; 
+    box-sizing: border-box; 
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
+    z-index: 2;
+    
+    /* トランジション: スワップや落下のアニメーションを滑らかにする */
+    transition: transform 0.2s, box-shadow 0.2s; 
+}
+
+/* ピースの種類（色）定義 - PIECE_TYPES に対応 */
+.piece-1 { background-color: #e74c3c; } /* 赤 */
+.piece-2 { background-color: #3498db; } /* 青 */
+.piece-3 { background-color: #2ecc71; } /* 緑 */
+.piece-4 { background-color: #f1c40f; } /* 黄 */
+.piece-5 { background-color: #9b59b6; } /* 紫 */
