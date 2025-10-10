@@ -22,6 +22,35 @@ body {
   position: relative;
 }
 
+/* ===== 共通ボタン ===== */
+#title-return-form {
+    position: absolute; 
+    top: 20px;
+    left: 20px;
+    margin: 0;
+    padding: 0;
+    z-index: 100;
+}
+
+#to-title-button {
+  position: absolute; 
+  top: 5px;   /* 上端からの距離 */
+  left: 5px;  /* 左端からの距離 */
+
+  font-size: 16px;
+  padding: 8px 15px;
+  background: #c33; /* 目立つ赤色など */
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  z-index: 100; /* 他の要素より手前に表示 */
+  transition: 0.2s;
+}
+
+#to-title-button:hover {
+  background: #e55;
+}
+
 /* ===== scene設定 ===== */
 .screen {
   display: none;
@@ -66,7 +95,7 @@ body {
 }
 
 /* パズルボード */
-#puzzle-board{
+#game-screen #puzzle-board{
     width: 400px;
     height: 400px;
     display: grid;
