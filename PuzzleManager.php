@@ -95,6 +95,29 @@ class PuzzleManager
         return $newBlock;
     }
 
+    /** スワイプ処理: 盤面を直接変更 */
+    public function swipePiece(int $row,int $col,string $direction){
+        $targetRow = $row;
+        $targetCol = $col;
+
+        switch($direction){
+            case 'up': $targetRow--; break;
+            case 'down': $targetRow++; break;
+            case 'left': $targetCol--; break;
+            case 'right': $targetCol++; break;
+        }
+
+        // 範囲外なら無効
+        if($targetRow<0 || $targetRow>=self::ROWS || $targetCol<0 || $targetCol>=self::COLS) return false;
+
+        // 入れ替え
+        $tmp = $this->board[$row][$col];
+        $this->board[$row][$col] = $this->board[$targetRow][$targetCol];
+        $this->board[$targetRow][$targetCol] = $tmp;
+
+        return true;
+    }
+
     /**
      * 現在のゲーム盤の状態を返します。
      * @return array 盤面データ
