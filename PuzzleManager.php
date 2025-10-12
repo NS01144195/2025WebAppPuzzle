@@ -12,10 +12,9 @@ class PuzzleManager
     private $board = [];
 
     /**
-     * コンストラクタ
      * ゲーム盤を初期化し、初期ブロックを配置します。
      */
-    public function __construct()
+    public function startGame()
     {
         // まず盤面を初期化
         $this->initializeBoard();
@@ -103,6 +102,14 @@ class PuzzleManager
     public function getBoard(): array
     {
         return $this->board;
+    }
+
+    /**
+     * ゲーム盤をセット
+     */
+    public function setBoard(array $newBoard)
+    {
+        $this->board = $newBoard;
     }
 }
 ?>

@@ -19,19 +19,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     exit;
 }
 
-// TODO: Modelの読み込み
-// require_once 'model/GameModel.php';
-
 // 現在のシーンに基づいてビューファイルを決定
 $view_file = $_SESSION['current_scene'] . 'SceneView.php';
 
-// TODO:Modelの準備
-/*
-$gameModel = new GameModel(); // PHP版のModelクラス
+require_once 'PuzzleManager.php';
+
+$puzzleManager = new PuzzleManager();
 if ($_SESSION['current_scene'] === 'game') {
-    $gameModel->initializeGame(); // ゲーム開始時にModelを初期化
+    $puzzleManager->startGame();
 }
-*/
+
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -46,7 +43,6 @@ if ($_SESSION['current_scene'] === 'game') {
     <div id="game-container">
         <?php
             if (file_exists($view_file)) {
-                // $gameModelなど、PHPの変数をビューファイルで使えるようにする
                 require_once $view_file; 
             } else {
                 echo "<div>エラー: ビューファイルが見つかりません。</div>";

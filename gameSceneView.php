@@ -1,7 +1,17 @@
 <?php
-require_once 'PuzzleManager.php';
-$manager = new PuzzleManager();
-$boardData = $manager->getBoard();
+$testBoard = [
+    [1,2,3,4,5,1,2,3,4],
+    [2,3,2,5,1,2,3,4,5],
+    [3,4,5,1,2,3,4,5,1],
+    [4,5,1,2,3,4,5,1,2],
+    [5,1,2,3,4,5,1,2,3],
+    [1,2,3,4,5,1,2,3,4],
+    [2,3,4,5,1,2,3,4,5],
+    [3,4,5,1,2,3,4,5,1],
+    [4,5,1,2,3,4,5,1,2],
+];
+$puzzleManager->setBoard($testBoard);
+$boardData = $puzzleManager->getBoard();
 ?>
 
 <div id="game-container">
@@ -17,14 +27,7 @@ $boardData = $manager->getBoard();
                 for ($col = 0; $col < 9; $col++) {
                     $pieceId = $boardData[$row][$col];
                     echo '<div class="cell" data-row="' . $row . '" data-col="' . $col . '">';
-
-                    // ピースはセルの中に完全に収まるように配置する
-                    echo '  <div 
-                            class="piece piece-' . $pieceId . '" 
-                            data-piece-id="' . $pieceId . '"
-                        ></div>';
-
-                    // マス目の終了タグ
+                    echo '<div class="piece piece-' . $pieceId . '" data-piece-id="' . $pieceId . '"></div>';
                     echo '</div>';
                 }
             }
