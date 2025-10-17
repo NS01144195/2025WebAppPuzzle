@@ -157,6 +157,14 @@ body {
     opacity: 0;
 }
 
+/* 削除されるピースのアニメーション用スタイル */
+#game-screen #puzzle-board .piece.disappearing {
+    transform: scale(0);
+    opacity: 0;
+    /* このアニメーションに0.2秒(200ms)かける */
+    transition: transform 0.2s ease-in, opacity 0.2s ease-out;
+}
+
 /* ピース移動アニメーション */
 #game-screen #puzzle-board .piece.moving {
     /* CSS変数で設定された時間とイージングを使用して移動 */
@@ -183,5 +191,5 @@ body {
 /* 落下用アニメーションクラス */
 .drop-animation {
     transition-duration: 0.3s; /* 交換より少し遅くする */
-    transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1); /* 少しバウンドするような動き */
+    transition-timing-function: ease-in-out;
 }

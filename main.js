@@ -56,51 +56,52 @@ document.addEventListener("DOMContentLoaded", () => {
      * @param {boolean} isPermanent DOM構造を恒久的に変更するか
      * @returns {Promise<void>} アニメーション完了時に解決するPromise
      */
-    function animateGoTo(piece, targetCell, animationType, isPermanent = false) {
+    async function animateGoTo(piece, targetCell, animationType, isPermanent = false) {
         return new Promise(resolve => {
-            if (!piece || !targetCell) {
-                resolve();
-                return;
-            }
+            if (!piece || !targetCell) return resolve();
 
-            // ピース自身の位置ではなく、ピースの親である「出発点セル」を取得
             const sourceCell = piece.parentElement;
-            if (!sourceCell) {
-                console.error("ピースの親セルが見つかりません。", piece);
-                resolve();
-                return;
-            }
+            if (!sourceCell) return resolve();
 
-            // 出発点セルと目標セルの位置を取得
             const sourceRect = sourceCell.getBoundingClientRect();
             const targetRect = targetCell.getBoundingClientRect();
-
-            // セル間の距離を計算 (これがピースの移動距離になる)
             const dx = targetRect.left - sourceRect.left;
             const dy = targetRect.top - sourceRect.top;
 
-            // アニメーション用のクラスを設定
             const animationClass = animationType === AnimationType.Drop ? 'drop-animation' : 'swap-animation';
-            
-            // アニメーション完了時の処理を一度だけ実行するリスナー
-            const onTransitionEnd = () => {
-                piece.removeEventListener('transitionend', onTransitionEnd);
 
-                // アニメーション用のスタイルとクラスを解除
-                piece.style.transform = '';
+            // transitionを設定
+            piece.style.transition = 'transform 0.3s ease';
+            piece.classList.add(animationClass);
+
+            const onTransitionEnd = (e) => {
+                if (e.propertyName !== 'transform') return;
+                clearTimeout(timeout);
+                piece.removeEventListener('transitionend', onTransitionEnd);
+                piece.style.removeProperty('transition');
+                piece.style.removeProperty('transform');
                 piece.classList.remove(animationClass);
-                
-                // DOM構造を恒久的に変更する場合
-                if (isPermanent) {
-                    targetCell.appendChild(piece);
-                }
+                if (isPermanent) targetCell.appendChild(piece);
                 resolve();
             };
+
             piece.addEventListener('transitionend', onTransitionEnd);
 
-            // アニメーションクラスを適用し、transformで移動を開始
-            piece.classList.add(animationClass);
+            // 強制レイアウト確定
+            void piece.offsetWidth;
+
+            // 実際に動かす
             piece.style.transform = `translate(${dx}px, ${dy}px)`;
+
+            // 保険タイマー（transitionendが来なかった場合）
+            const timeout = setTimeout(() => {
+                piece.removeEventListener('transitionend', onTransitionEnd);
+                piece.style.removeProperty('transition');
+                piece.style.removeProperty('transform');
+                piece.classList.remove(animationClass);
+                if (isPermanent) targetCell.appendChild(piece);
+                resolve();
+            }, 600); // transition時間 + 余裕
         });
     }
 
@@ -108,33 +109,41 @@ document.addEventListener("DOMContentLoaded", () => {
      * 指定された座標にあるピースをアニメーション付きで削除する
      * @param {Array<Object>} coordsToRemove 削除するピースの座標リスト [{row: r, col: c}, ...]
      */
-    async function animateRemovePieces(coordsToRemove) {
-        // 削除アニメーションのPromiseを格納する配列
-        const removalPromises = [];
+    /**
+     * マッチしたピースを消すアニメーションを実行する (時間ベースの確実なバージョン)
+     * @param {Array<object>} matchedCoords 消えるピースの座標配列
+     */
+    async function animateRemovePieces(matchedCoords) {
+        if (!matchedCoords || matchedCoords.length === 0) {
+            return;
+        }
 
-        // 座標リストをループして、各ピースに削除アニメーションを適用
-        for (const coord of coordsToRemove) {
+        const piecesToRemove = [];
+        // 1. 消えるピースすべてに、同時にアニメーション開始クラスを付与
+        for (const coord of matchedCoords) {
             const cell = document.querySelector(`.cell[data-row="${coord.row}"][data-col="${coord.col}"]`);
             const piece = getPiece(cell);
-
             if (piece) {
-                // Promiseを作成し、アニメーション完了後に解決する
-                const promise = new Promise(resolve => {
-                    // アニメーション完了を検知するイベントリスナー
-                    piece.addEventListener('transitionend', () => {
-                        piece.remove(); // DOMから完全に削除
-                        resolve(); // Promiseを解決
-                    }, { once: true }); // イベントを一回だけ実行する
-
-                    // このクラスを付与することで、CSSで定義したアニメーションが開始される
-                    piece.classList.add('disappearing');
-                });
-                removalPromises.push(promise);
+                piece.classList.add('disappearing');
+                piecesToRemove.push(piece);
             }
         }
 
-        // すべての削除アニメーションが終わるまで待つ
-        await Promise.all(removalPromises);
+        // ピースがなければここで処理を終了
+        if (piecesToRemove.length === 0) {
+            return;
+        }
+
+        // 2. CSSで指定したアニメーション時間 (200ms = 0.2s) だけ待つ
+        await new Promise(resolve => setTimeout(resolve, 200));
+
+        // 3. 時間が来たら、アニメーションが終わったとみなし、すべてのピースをDOMから削除
+        for (const piece of piecesToRemove) {
+            if (piece.parentElement) {
+                piece.parentElement.removeChild(piece);
+            }
+        }
+        
         console.log("すべてのピースの削除が完了しました。");
     }
 
@@ -151,13 +160,13 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!isAdjacent(cell1, cell2)) {
             console.log("隣接していません。選択を更新します。");
             // 2つ目のピースを選択状態にする
-            if(piece2) piece2.classList.add("selected");
-            selectedCell = cell2; 
+            if (piece2) piece2.classList.add("selected");
+            selectedCell = cell2;
             return;
         }
-        
+
         console.log("隣接しています。交換アニメーションを開始します。");
-        
+
         const r1 = parseInt(cell1.dataset.row);
         const c1 = parseInt(cell1.dataset.col);
         const r2 = parseInt(cell2.dataset.row);
@@ -165,10 +174,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // 1. 最初にピースを交換する「見た目」のアニメーションを実行
         await Promise.all([
-            animateGoTo(piece1, cell2, AnimationType.Swap, false), 
+            animateGoTo(piece1, cell2, AnimationType.Swap, false),
             animateGoTo(piece2, cell1, AnimationType.Swap, false)
         ]);
-        
+
         try {
             // 2. サーバーにリクエストを送信し、連鎖の全手順を受け取る
             const requestData = { action: 'swapPieces', r1, c1, r2, c2 };
@@ -189,19 +198,21 @@ document.addEventListener("DOMContentLoaded", () => {
             // 3. マッチしたかどうかの判定（連鎖ステップが1つ以上あるか）
             if (chainSteps && chainSteps.length > 0) {
                 console.log(`${chainSteps.length}回の連鎖が見つかりました。アニメーションを再生します。`);
-                
+
                 // マッチしたので、交換後のピース位置をDOM上で確定させる
                 cell1.appendChild(piece2);
                 cell2.appendChild(piece1);
-                
-                // 4. 連鎖アニメーションをループで再生
+
+                // 4. 連鎖アニメーションをループで再生 (修正版：僅かな遅延を追加)
                 for (const step of chainSteps) {
-                    // 削除アニメーションと落下・補充アニメーションを並行して実行
-                    const removalPromise = animateRemovePieces(step.matchedCoords);
-                    const fallAndRefillPromise = animateFallAndRefill(step.refillData);
-                    
-                    // 現在の連鎖ステップのアニメーションが全て終わるのを待つ
-                    await Promise.all([removalPromise, fallAndRefillPromise]);
+                    // まず、ピースが消えるアニメーションが完全に終わるのを待つ
+                    await animateRemovePieces(step.matchedCoords);
+
+                    // ブラウザの描画タイミング問題を回避するため、ごく僅かなポーズを挟む
+                    await new Promise(resolve => setTimeout(resolve, 50)); // 50ミリ秒(0.05秒)待つ
+
+                    // その後、ピースの落下と補充のアニメーションを実行し、それが終わるのを待つ
+                    await animateFallAndRefill(step.refillData);
                 }
 
             } else {
@@ -255,7 +266,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (refillData.newPieces && refillData.newPieces.length > 0) {
             for (const newPieceData of refillData.newPieces) {
                 const targetCell = document.querySelector(`.cell[data-row="${newPieceData.row}"][data-col="${newPieceData.col}"]`);
-                
+
                 if (targetCell) {
                     // 新しいピースを作成して盤面に追加
                     const newPiece = document.createElement('div');
@@ -275,18 +286,18 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
         }
-        
+
         // --- 3. すべてのアニメーションが完了するのを待つ ---
         await Promise.all(animationPromises);
 
         // --- 4. アニメーション完了後、落下したピースのDOM構造を一括で更新 ---
         for (const update of fallUpdates) {
             // アニメーションで適用されたtransformスタイルをリセット
-            update.piece.style.transform = ''; 
+            update.piece.style.transform = '';
             // ピースを新しい親セルに移動
             update.toCell.appendChild(update.piece);
         }
-        
+
         // このログは、1つの連鎖ステップの落下・補充がすべて完了したことを示す
         console.log("落下/補充ステップが完了しました。");
     }
@@ -307,14 +318,22 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            if (selectedCell) {
-                if (selectedCell !== cell) {
+                if (selectedCell) {
+                // 先に、1つ目のピースの選択状態を解除する
+                if (getPiece(selectedCell)) {
+                    getPiece(selectedCell).classList.remove("selected");
+                }
+                
+                // もし違うセルをクリックし、かつ隣接していれば交換処理を実行
+                if (selectedCell !== cell && isAdjacent(selectedCell, cell)) {
                     isAnimating = true;
                     await handleExchange(selectedCell, cell);
                     isAnimating = false;
                 }
-                if (getPiece(selectedCell)) getPiece(selectedCell).classList.remove("selected");
+                
+                // 最後に、選択状態をリセットする
                 selectedCell = null;
+
             } else {
                 getPiece(cell).classList.add("selected");
                 selectedCell = cell;
