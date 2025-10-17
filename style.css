@@ -114,5 +114,23 @@ body {
 
 #game-screen #puzzle-board .cell {
     border: 1px solid #777;
-    background-color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #383838; /* セルの背景色 */
+    overflow: hidden; /* ピースが枠をはみ出さないように */
+    cursor: pointer;
+}
+
+#game-screen #puzzle-board .piece {
+    width: 90%;
+    height: 90%;
+    border-radius: 50%; /* 完全な円形 */
+    box-sizing: border-box;
+    
+    /* 動きを滑らかにするためのトランジション */
+    transition: 
+        transform 0.15s ease-out, 
+        box-shadow 0.15s ease-out,
+        border 0.15s ease-out;
 }
