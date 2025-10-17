@@ -119,9 +119,7 @@ body {
     justify-content: center;
     align-items: center;
     background-color: #383838; /* セルの背景色 */
-    overflow: hidden; /* ピースが枠をはみ出さないように */
     cursor: pointer;
-    z-index: 1; 
 }
 
 /* ピース */

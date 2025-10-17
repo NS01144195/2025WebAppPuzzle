@@ -74,7 +74,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const deltaY = rectB.top - rectA.top;
 
             // アニメーションタイプに応じてトランジション設定を決定
-            let duration = '1s';
+            let duration = '0.2s';
             let easing = 'ease-in-out'; // Swapのデフォルト
 
             if (animationType === AnimationType.Drop) {
