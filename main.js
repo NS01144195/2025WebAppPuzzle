@@ -129,54 +129,85 @@ document.addEventListener("DOMContentLoaded", () => {
         if (piece2) piece2.classList.remove("selected");
 
         // 隣接チェック
-        if (isAdjacent(cell1, cell2)) {
-            isAnimating = true;
-            console.log("隣接しています。交換アニメーションを開始します。");
+        if (!isAdjacent(cell1, cell2)) {
+            console.log("隣接していません。選択を更新します。");
+            // 2つ目のピースを選択状態にする
+            if (piece2) piece2.classList.add("selected");
+            selectedCell = cell2; // 選択セルを更新
+            return; // 処理を中断
+        }
 
-            // 1. ピースをそれぞれのターゲットセルへ同時に移動 (Swapアニメーションを使用)
-            await Promise.all([
-                // permanent: true でDOM構造も物理的に変更される
-                animateGoTo(piece1, cell2, AnimationType.Swap, true),
-                animateGoTo(piece2, cell1, AnimationType.Swap, true)
-            ]);
+        // --- ここからが隣接していた場合の処理 ---
+        isAnimating = true;
+        console.log("隣接しています。交換アニメーションを開始します。");
 
-            // 【TODO: サーバー通信】
-            // 2. サーバーへAJAXリクエストを送信し、マッチング判定を要求
-            // ここではまだダミーのロジックを使用しますが、サーバー連携の場所を明確にします
+        // 座標を整数に変換
+        const r1 = parseInt(cell1.dataset.row);
+        const c1 = parseInt(cell1.dataset.col);
+        const r2 = parseInt(cell2.dataset.row);
+        const c2 = parseInt(cell2.dataset.col);
 
-            // 仮のAJAXリクエスト（実際は非同期通信を行う）
-            const isMatch = await new Promise(resolve => {
-                console.log("サーバーへのマッチングチェックをシミュレーション中...");
-                // サーバー通信に時間がかかることをシミュレート
-                setTimeout(() => {
-                    // 暫定的に「マッチしなかった」として元の位置に戻る動作を確認
-                    resolve(false);
-                }, 300);
+        // 1. ピースをそれぞれのターゲットセルへ同時に移動
+        await Promise.all([
+            animateGoTo(piece1, cell2, AnimationType.Swap, false), // DOM変更はまだしない
+            animateGoTo(piece2, cell1, AnimationType.Swap, false)
+        ]);
+        
+        // 2. サーバーに交換情報を送信し、マッチングをチェック
+        try {
+            // APIに送信するデータを作成
+            const requestData = {
+                action: 'swapPieces',
+                r1: r1, c1: c1,
+                r2: r2, c2: c2
+            };
+
+            // apiManager.phpにPOSTリクエストを送信
+            const response = await fetch('apiManager.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(requestData) // JavaScriptオブジェクトをJSON文字列に変換
             });
 
+            if (!response.ok) {
+                // サーバーからの応答がエラーだった場合
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'サーバーとの通信に失敗しました。');
+            }
+
+            const result = await response.json();
+            console.log('APIからのレスポンス:', result);
+
+            // TODO: 次のステップで、ここでサーバーからのマッチ判定結果を受け取る
+            const isMatch = false; // 今はまだマッチ判定がないので、必ず元に戻す
 
             if (isMatch) {
-                console.log("マッチしました。ピースの永続化と連鎖処理に進みます。");
-                // 【TODO】: マッチした場合は、サーバーから返された新しい盤面データに基づいて
-                // 削除・落下・補充のアニメーションとDOM更新を行う。
+                console.log("マッチしました！");
+                // TODO: マッチした場合の処理
+                // ここで初めてDOM構造を確定させる
+                cell1.appendChild(piece2);
+                cell2.appendChild(piece1);
 
             } else {
                 console.log("マッチしなかったため、ピースを元に戻します。");
-                // 3. マッチしなかった場合、元に戻すアニメーションを実行
+                // 元に戻すアニメーションを実行
                 await Promise.all([
-                    // piece1 は現在 cell2 にあるので cell1 に戻す
-                    animateGoTo(piece1, cell1, AnimationType.Swap, true),
-                    // piece2 は現在 cell1 にあるので cell2 に戻す
-                    animateGoTo(piece2, cell2, AnimationType.Swap, true)
+                    animateGoTo(piece1, cell1, AnimationType.Swap, false),
+                    animateGoTo(piece2, cell2, AnimationType.Swap, false)
                 ]);
             }
 
+        } catch (error) {
+            console.error('APIリクエスト中にエラーが発生しました:', error);
+            // エラーが発生した場合も、見た目を元に戻す
+            await Promise.all([
+                animateGoTo(piece1, cell1, AnimationType.Swap, false),
+                animateGoTo(piece2, cell2, AnimationType.Swap, false)
+            ]);
+        } finally {
+            // アニメーション完了後に状態をリセット
             isAnimating = false;
-            return true; // 交換処理が完了
-        } else {
-            // 隣接していない場合
-            console.log("隣接していません。選択を更新します。");
-            return false; // 交換失敗
+            selectedCell = null;
         }
     }
 

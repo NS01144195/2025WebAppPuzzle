@@ -69,6 +69,27 @@ class PuzzleManager
     }
 
     /**
+     * 指定された2つの座標のピースを交換する
+     * @param int $r1 1つ目のピースの行
+     * @param int $c1 1つ目のピースの列
+     * @param int $r2 2つ目のピースの行
+     * @param int $c2 2つ目のピースの列
+     */
+    public function swapPieces($r1, $c1, $r2, $c2)
+    {
+        // 盤面の範囲外の座標が指定されていないかチェック
+        if (!isset($this->board[$r1][$c1]) || !isset($this->board[$r2][$c2])) {
+            // エラーハンドリング：範囲外の場合は何もしない
+            return;
+        }
+        
+        // ピースを一時変数を使って入れ替え
+        $tempPiece = $this->board[$r1][$c1];
+        $this->board[$r1][$c1] = $this->board[$r2][$c2];
+        $this->board[$r2][$c2] = $tempPiece;
+    }
+
+    /**
      * 現在の盤面データを返す
      * @return array
      */
