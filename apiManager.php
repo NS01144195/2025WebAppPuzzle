@@ -46,39 +46,24 @@ switch ($data['action']) {
     
     // 'swapPieces'アクションが指定された場合
     case 'swapPieces':
-        // 必要な座標データがすべて存在するかチェック
         if (isset($data['r1'], $data['c1'], $data['r2'], $data['c2'])) {
-            
-            // --- 1. ピース交換とマッチ判定 ---
-            $matchedCoords = $puzzleManager->swapPieces($data['r1'], $data['c1'], $data['r2'], $data['c2']);
-            
-            $isMatch = !empty($matchedCoords);
-            $refillData = []; // 落下・補充アニメーション用のデータを初期化
-            
-            // --- 2. マッチした場合の追加処理 ---
-            if ($isMatch) {
-                // 2a. マッチしたピースを盤面データから削除
-                $puzzleManager->removePieces($matchedCoords);
-                
-                // 2b. 落下と補充の処理を実行し、アニメーション情報を取得
-                $refillData = $puzzleManager->generateAndRefillPieces();
-                
-                // 2c. 最終的な盤面をセッションに保存
-                $_SESSION['board'] = $puzzleManager->getBoard();
-            }
+            // 1. PuzzleManagerの新しい司令塔メソッドを呼び出す
+            $chainSteps = $puzzleManager->processPlayerSwap(
+                $data['r1'], $data['c1'], $data['r2'], $data['c2']
+            );
 
-            // --- 3. レスポンスの準備 ---
+            // 2. 最終盤面をセッションに保存
+            $_SESSION['board'] = $puzzleManager->getBoard();
+
+            // 3. 結果をレスポンスとして返す
             $response = [
                 'status' => 'success', 
-                'message' => 'ピース交換処理が完了しました。',
-                'matchedCoords' => $matchedCoords, // 削除するピースの座標
-                'refillData' => $refillData        // 落下・補充されるピースの情報
+                'chainSteps' => $chainSteps
             ];
-
         } else {
-            // データが不足している場合はエラー
+            // エラー処理
             http_response_code(400);
-            $response = ['status' => 'error', 'message' => 'ピース交換のための座標データが不足しています。'];
+            $response = ['status' => 'error', 'message' => '座標データが不足しています。'];
         }
         break;
     

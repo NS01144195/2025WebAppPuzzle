@@ -68,6 +68,37 @@ class PuzzleManager
         }
     }
 
+/**
+     * プレイヤーのピース交換操作から始まる一連の処理（交換、連鎖）をすべて実行する
+     * @param int $r1 1つ目のピースの行
+     * @param int $c1 1つ目のピースの列
+     * @param int $r2 2つ目のピースの行
+     * @param int $c2 2つ目のピースの列
+     * @return array 全てのアニメーションステップを格納した配列
+     */
+    public function processPlayerSwap($r1, $c1, $r2, $c2)
+    {
+        $chainSteps = [];
+        $matchedCoords = $this->swapPieces($r1, $c1, $r2, $c2);
+        
+        if (empty($matchedCoords)) {
+            return []; // マッチしなければここで終了
+        }
+
+        $isMatch = true;
+        while ($isMatch) {
+            $this->removePieces($matchedCoords);
+            $refillData = $this->generateAndRefillPieces();
+            $chainSteps[] = [
+                'matchedCoords' => $matchedCoords,
+                'refillData' => $refillData
+            ];
+            $matchedCoords = $this->findMatches();
+            $isMatch = !empty($matchedCoords); // マッチがあればループが続く
+        }
+        return $chainSteps;
+    }
+
     /**
      * 指定された2つの座標のピースを交換し、マッチが成立するか判定する。
      * マッチしない場合は、盤面を元に戻す。
@@ -105,41 +136,68 @@ class PuzzleManager
 
     /**
      * 盤面上の全てのマッチを検出し、マッチしたピースの座標リストを返す
-     * @return array マッチしたピースの座標 [[row, col], [row, col], ...]
+     * @return array マッチしたピースの座標リスト
      */
     public function findMatches()
     {
-        $matches = [];
-        $boardSize = $this->size;
-        
-        // マッチ判定用の盤面を準備（重複して追加しないようにするため）
-        $matchBoard = array_fill(0, $boardSize, array_fill(0, $boardSize, false));
+        $matchBoard = array_fill(0, $this->size, array_fill(0, $this->size, false));
 
-        // 盤面全体をスキャン
-        for ($r = 0; $r < $boardSize; $r++) {
-            for ($c = 0; $c < $boardSize; $c++) {
-                $currentColor = $this->board[$r][$c];
-                if ($currentColor === null) continue;
-
-                // 水平方向の3マッチをチェック
-                if ($c + 2 < $boardSize && $this->board[$r][$c+1] === $currentColor && $this->board[$r][$c+2] === $currentColor) {
-                    $matchBoard[$r][$c] = true;
-                    $matchBoard[$r][$c+1] = true;
-                    $matchBoard[$r][$c+2] = true;
+        // --- 水平方向のスキャン ---
+        for ($r = 0; $r < $this->size; $r++) {
+            $count = 1;
+            for ($c = 1; $c < $this->size; $c++) {
+                // 現在のピースが左隣と同じ色で、nullでなければカウントを増やす
+                if ($this->board[$r][$c] !== null && $this->board[$r][$c] === $this->board[$r][$c-1]) {
+                    $count++;
+                } else {
+                    // 色が変わった時点で、それまでのカウントが3以上ならマッチとして記録
+                    if ($count >= 3) {
+                        for ($i = 0; $i < $count; $i++) {
+                            $matchBoard[$r][$c - 1 - $i] = true;
+                        }
+                    }
+                    // カウントをリセット
+                    $count = 1;
                 }
+            }
+            // 行の最後に到達した時点で、カウントが3以上ならマッチとして記録
+            if ($count >= 3) {
+                for ($i = 0; $i < $count; $i++) {
+                    $matchBoard[$r][$this->size - 1 - $i] = true;
+                }
+            }
+        }
 
-                // 垂直方向の3マッチをチェック
-                if ($r + 2 < $boardSize && $this->board[$r+1][$c] === $currentColor && $this->board[$r+2][$c] === $currentColor) {
-                    $matchBoard[$r][$c] = true;
-                    $matchBoard[$r+1][$c] = true;
-                    $matchBoard[$r+2][$c] = true;
+        // --- 垂直方向のスキャン ---
+        for ($c = 0; $c < $this->size; $c++) {
+            $count = 1;
+            for ($r = 1; $r < $this->size; $r++) {
+                // 現在のピースが上隣と同じ色で、nullでなければカウントを増やす
+                if ($this->board[$r][$c] !== null && $this->board[$r][$c] === $this->board[$r-1][$c]) {
+                    $count++;
+                } else {
+                    // 色が変わった時点で、それまでのカウントが3以上ならマッチとして記録
+                    if ($count >= 3) {
+                        for ($i = 0; $i < $count; $i++) {
+                            $matchBoard[$r - 1 - $i][$c] = true;
+                        }
+                    }
+                    // カウントをリセット
+                    $count = 1;
+                }
+            }
+            // 列の最後に到達した時点で、カウントが3以上ならマッチとして記録
+            if ($count >= 3) {
+                for ($i = 0; $i < $count; $i++) {
+                    $matchBoard[$this->size - 1 - $i][$c] = true;
                 }
             }
         }
 
         // マッチ判定用盤面を元に、座標のリストを作成
-        for ($r = 0; $r < $boardSize; $r++) {
-            for ($c = 0; $c < $boardSize; $c++) {
+        $matches = [];
+        for ($r = 0; $r < $this->size; $r++) {
+            for ($c = 0; $c < $this->size; $c++) {
                 if ($matchBoard[$r][$c]) {
                     $matches[] = ['row' => $r, 'col' => $c];
                 }
