@@ -69,24 +69,76 @@ class PuzzleManager
     }
 
     /**
-     * 指定された2つの座標のピースを交換する
-     * @param int $r1 1つ目のピースの行
+     * 指定された2つの座標のピースを交換し、マッチが成立するか判定する。
+     * マッチしない場合は、盤面を元に戻す。
+     * * @param int $r1 1つ目のピースの行
      * @param int $c1 1つ目のピースの列
      * @param int $r2 2つ目のピースの行
      * @param int $c2 2つ目のピースの列
+     * @return bool マッチが成立すればtrue、しなければfalseを返す
      */
     public function swapPieces($r1, $c1, $r2, $c2)
     {
         // 盤面の範囲外の座標が指定されていないかチェック
         if (!isset($this->board[$r1][$c1]) || !isset($this->board[$r2][$c2])) {
-            // エラーハンドリング：範囲外の場合は何もしない
-            return;
+            return false; // エラーとしてfalseを返す
         }
         
-        // ピースを一時変数を使って入れ替え
+        // --- 実際にピースを入れ替える ---
         $tempPiece = $this->board[$r1][$c1];
         $this->board[$r1][$c1] = $this->board[$r2][$c2];
         $this->board[$r2][$c2] = $tempPiece;
+
+        // --- マッチ判定を実行 ---
+        $isMatch = $this->checkMatches();
+
+        // --- マッチしなかった場合の処理 ---
+        if (!$isMatch) {
+            // マッチしなかったので、盤面を元に戻す
+            $tempPiece = $this->board[$r1][$c1];
+            $this->board[$r1][$c1] = $this->board[$r2][$c2];
+            $this->board[$r2][$c2] = $tempPiece;
+        }
+        
+        // 判定結果を返す
+        return $isMatch;
+    }
+
+    /**
+     * 盤面全体をスキャンし、3つ以上のマッチがあるかチェックする
+     * @return bool マッチがあればtrue、なければfalseを返す
+     */
+    public function checkMatches()
+    {
+        // 盤面全体をループ
+        for ($r = 0; $r < $this->size; $r++) {
+            for ($c = 0; $c < $this->size; $c++) {
+                
+                $currentColor = $this->board[$r][$c];
+                if ($currentColor === null) continue; // 空のセルはスキップ
+
+                // --- 水平方向のチェック ---
+                // 右に2マス以上ある場合のみチェック
+                if ($c + 2 < $this->size) {
+                    // 現在のピースと、右隣、右々隣のピースが同じ色か
+                    if ($this->board[$r][$c+1] === $currentColor && $this->board[$r][$c+2] === $currentColor) {
+                        return true; // マッチが見つかった
+                    }
+                }
+
+                // --- 垂直方向のチェック ---
+                // 下に2マス以上ある場合のみチェック
+                if ($r + 2 < $this->size) {
+                    // 現在のピースと、下隣、下々隣のピースが同じ色か
+                    if ($this->board[$r+1][$c] === $currentColor && $this->board[$r+2][$c] === $currentColor) {
+                        return true; // マッチが見つかった
+                    }
+                }
+            }
+        }
+
+        // ループが終了してもマッチが見つからなかった場合
+        return false;
     }
 
     /**

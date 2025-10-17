@@ -152,7 +152,7 @@ document.addEventListener("DOMContentLoaded", () => {
             animateGoTo(piece1, cell2, AnimationType.Swap, false), // DOM変更はまだしない
             animateGoTo(piece2, cell1, AnimationType.Swap, false)
         ]);
-        
+
         // 2. サーバーに交換情報を送信し、マッチングをチェック
         try {
             // APIに送信するデータを作成
@@ -178,19 +178,19 @@ document.addEventListener("DOMContentLoaded", () => {
             const result = await response.json();
             console.log('APIからのレスポンス:', result);
 
-            // TODO: 次のステップで、ここでサーバーからのマッチ判定結果を受け取る
-            const isMatch = false; // 今はまだマッチ判定がないので、必ず元に戻す
+            const isMatch = result.isMatch; 
 
             if (isMatch) {
-                console.log("マッチしました！");
-                // TODO: マッチした場合の処理
-                // ここで初めてDOM構造を確定させる
+                console.log("マッチしました！ピースを確定させます。");
+                // マッチした場合、DOM構造を物理的に変更してピースの位置を確定
                 cell1.appendChild(piece2);
                 cell2.appendChild(piece1);
+                
+                // 【TODO】: 次は、マッチしたピースを消して新しいピースを補充する処理をここに書く
 
             } else {
                 console.log("マッチしなかったため、ピースを元に戻します。");
-                // 元に戻すアニメーションを実行
+                // マッチしなかった場合は、再度アニメーションさせて元の位置に戻す
                 await Promise.all([
                     animateGoTo(piece1, cell1, AnimationType.Swap, false),
                     animateGoTo(piece2, cell2, AnimationType.Swap, false)

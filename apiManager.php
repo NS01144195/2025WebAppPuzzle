@@ -49,14 +49,20 @@ switch ($data['action']) {
         // 必要な座標データがすべて存在するかチェック
         if (isset($data['r1'], $data['c1'], $data['r2'], $data['c2'])) {
             
-            // PuzzleManagerのメソッドを呼び出してピースを交換
-            $puzzleManager->swapPieces($data['r1'], $data['c1'], $data['r2'], $data['c2']);
+            // PuzzleManagerのメソッドを呼び出してピース交換とマッチ判定を行う
+            $isMatch = $puzzleManager->swapPieces($data['r1'], $data['c1'], $data['r2'], $data['c2']);
             
-            // 更新された盤面データをセッションに保存
-            $_SESSION['board'] = $puzzleManager->getBoard();
+            // マッチした場合のみ、更新された盤面データをセッションに保存
+            if ($isMatch) {
+                $_SESSION['board'] = $puzzleManager->getBoard();
+            }
 
-            // 成功レスポンスを準備
-            $response = ['status' => 'success', 'message' => 'ピースが交換されました。'];
+            // 成功レスポンスを準備 (判定結果も含める)
+            $response = [
+                'status' => 'success', 
+                'message' => 'ピース交換処理が完了しました。',
+                'isMatch' => $isMatch // 判定結果をレスポンスに追加
+            ];
 
         } else {
             // データが不足している場合はエラー
