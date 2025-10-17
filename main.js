@@ -49,77 +49,103 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /**
-     * 指定されたピースをターゲットのセルの位置までアニメーションで移動させる
-     * @param {HTMLElement} piece ピース要素
-     * @param {HTMLElement} targetCell 移動先のセル要素
-     * @param {string} animationType AnimationTypeで定義されたアニメーションの種類
-     * @param {boolean} permanent DOMの構造（親要素）も実際に変更するかどうか
+     * ピースを指定されたセルへアニメーション付きで移動させる汎用関数 (改善版)
+     * @param {HTMLElement} piece 動かすピース
+     * @param {HTMLElement} targetCell 移動先のセル
+     * @param {string} animationType AnimationType定数の値 ('swap' or 'drop')
+     * @param {boolean} isPermanent DOM構造を恒久的に変更するか
      * @returns {Promise<void>} アニメーション完了時に解決するPromise
      */
-    function animateGoTo(piece, targetCell, animationType = AnimationType.Swap, permanent = true) {
+    function animateGoTo(piece, targetCell, animationType, isPermanent = false) {
         return new Promise(resolve => {
             if (!piece || !targetCell) {
                 resolve();
                 return;
             }
 
-            const currentCell = piece.parentElement;
-
-            // 現在のセルの位置とターゲットセルの位置を取得
-            const rectA = currentCell.getBoundingClientRect();
-            const rectB = targetCell.getBoundingClientRect();
-
-            // ピースが移動するために必要なX/Y移動距離
-            const deltaX = rectB.left - rectA.left;
-            const deltaY = rectB.top - rectA.top;
-
-            // アニメーションタイプに応じてトランジション設定を決定
-            let duration = '0.2s';
-            let easing = 'ease-in-out'; // Swapのデフォルト
-
-            if (animationType === AnimationType.Drop) {
-                // 落下アニメーションの場合は、重力感のあるイージング (ease-in) を使用
-                // 落下距離に応じて時間を調整することも可能だが、ここでは固定
-                duration = '0.15s';
-                easing = 'ease-in';
+            // ★★★ 変更点 ★★★
+            // ピース自身の位置ではなく、ピースの親である「出発点セル」を取得
+            const sourceCell = piece.parentElement;
+            if (!sourceCell) {
+                console.error("ピースの親セルが見つかりません。", piece);
+                resolve();
+                return;
             }
 
-            // アニメーションに必要なCSS変数を設定
-            piece.style.setProperty('--dx', `${deltaX}px`);
-            piece.style.setProperty('--dy', `${deltaY}px`);
-            piece.style.setProperty('--duration', duration);
-            piece.style.setProperty('--easing', easing);
+            // 出発点セルと目標セルの位置を取得
+            const sourceRect = sourceCell.getBoundingClientRect();
+            const targetRect = targetCell.getBoundingClientRect();
 
-            // アニメーションをトリガーするクラスを追加
-            piece.classList.add('moving');
+            // セル間の距離を計算 (これがピースの移動距離になる)
+            const dx = targetRect.left - sourceRect.left;
+            const dy = targetRect.top - sourceRect.top;
+            // ★★★ ここまでが変更点 ★★★
 
-            // アニメーション完了を待つ
-            piece.addEventListener('transitionend', function handler() {
-                piece.removeEventListener('transitionend', handler);
+            // アニメーション用のクラスを設定
+            const animationClass = animationType === AnimationType.Drop ? 'drop-animation' : 'swap-animation';
+            
+            // アニメーション完了時の処理を一度だけ実行するリスナー
+            const onTransitionEnd = () => {
+                piece.removeEventListener('transitionend', onTransitionEnd);
 
-                // アニメーション完了後、クラスとCSS変数を削除
-                piece.classList.remove('moving');
-                piece.style.removeProperty('--dx');
-                piece.style.removeProperty('--dy');
-                piece.style.removeProperty('--duration');
-                piece.style.removeProperty('--easing');
-
-                if (permanent) {
-                    // 永続的な移動の場合、DOM構造を物理的に移動
+                // アニメーション用のスタイルとクラスを解除
+                piece.style.transform = '';
+                piece.classList.remove(animationClass);
+                
+                // DOM構造を恒久的に変更する場合
+                if (isPermanent) {
                     targetCell.appendChild(piece);
                 }
+                resolve();
+            };
+            piece.addEventListener('transitionend', onTransitionEnd);
 
-                resolve(); // Promiseを解決
-            }, { once: true }); // イベントリスナーを一度だけ実行する
+            // アニメーションクラスを適用し、transformで移動を開始
+            piece.classList.add(animationClass);
+            piece.style.transform = `translate(${dx}px, ${dy}px)`;
         });
     }
 
     /**
- * 2つの隣接ピースを交換し、マッチングをチェックする処理
- * @param {HTMLElement} cell1 1つ目のセル (selectedCell)
- * @param {HTMLElement} cell2 2つ目のセル (current click)
- * @returns {boolean} 交換処理が続行されたかどうか (隣接していたか)
- */
+     * 指定された座標にあるピースをアニメーション付きで削除する
+     * @param {Array<Object>} coordsToRemove 削除するピースの座標リスト [{row: r, col: c}, ...]
+     */
+    async function animateRemovePieces(coordsToRemove) {
+        // 削除アニメーションのPromiseを格納する配列
+        const removalPromises = [];
+
+        // 座標リストをループして、各ピースに削除アニメーションを適用
+        for (const coord of coordsToRemove) {
+            const cell = document.querySelector(`.cell[data-row="${coord.row}"][data-col="${coord.col}"]`);
+            const piece = getPiece(cell);
+
+            if (piece) {
+                // Promiseを作成し、アニメーション完了後に解決する
+                const promise = new Promise(resolve => {
+                    // アニメーション完了を検知するイベントリスナー
+                    piece.addEventListener('transitionend', () => {
+                        piece.remove(); // DOMから完全に削除
+                        resolve(); // Promiseを解決
+                    }, { once: true }); // イベントを一回だけ実行する
+
+                    // このクラスを付与することで、CSSで定義したアニメーションが開始される
+                    piece.classList.add('disappearing');
+                });
+                removalPromises.push(promise);
+            }
+        }
+
+        // すべての削除アニメーションが終わるまで待つ
+        await Promise.all(removalPromises);
+        console.log("すべてのピースの削除が完了しました。");
+    }
+
+    /**
+     * 2つの隣接ピースを交換し、マッチングをチェックする処理
+     * @param {HTMLElement} cell1 1つ目のセル (selectedCell)
+     * @param {HTMLElement} cell2 2つ目のセル (current click)
+     * @returns {boolean} 交換処理が続行されたかどうか (隣接していたか)
+     */
     async function handleExchange(cell1, cell2) {
         const piece1 = getPiece(cell1);
         const piece2 = getPiece(cell2);
@@ -178,19 +204,24 @@ document.addEventListener("DOMContentLoaded", () => {
             const result = await response.json();
             console.log('APIからのレスポンス:', result);
 
-            const isMatch = result.isMatch; 
+            const matchedCoords = result.matchedCoords;
 
-            if (isMatch) {
-                console.log("マッチしました！ピースを確定させます。");
-                // マッチした場合、DOM構造を物理的に変更してピースの位置を確定
+            // マッチが成立したか（座標リストが空でないか）をチェック
+            if (matchedCoords && matchedCoords.length > 0) {
+                console.log("マッチしました！ピースを確定し、削除します。");
+                // DOM構造を物理的に変更してピースの位置を確定
                 cell1.appendChild(piece2);
                 cell2.appendChild(piece1);
                 
-                // 【TODO】: 次は、マッチしたピースを消して新しいピースを補充する処理をここに書く
+                const removalPromise = animateRemovePieces(matchedCoords);
+                const fallAndRefillPromise = animateFallAndRefill(result.refillData);
+                
+                // 両方のアニメーションが完了するのを待つ
+                await Promise.all([removalPromise, fallAndRefillPromise]);
 
             } else {
                 console.log("マッチしなかったため、ピースを元に戻します。");
-                // マッチしなかった場合は、再度アニメーションさせて元の位置に戻す
+                // 元に戻すアニメーション
                 await Promise.all([
                     animateGoTo(piece1, cell1, AnimationType.Swap, false),
                     animateGoTo(piece2, cell2, AnimationType.Swap, false)
@@ -209,6 +240,65 @@ document.addEventListener("DOMContentLoaded", () => {
             isAnimating = false;
             selectedCell = null;
         }
+    }
+
+    /**
+     * サーバーからのデータに基づき、ピースの落下と補充のアニメーションを実行する
+     * @param {object} refillData サーバーから受け取った落下・補充情報
+     */
+    async function animateFallAndRefill(refillData) {
+        if (!refillData) return;
+
+        const animationPromises = [];
+
+        // 1. 落下アニメーションの処理 (fallMoves)
+        if (refillData.fallMoves && refillData.fallMoves.length > 0) {
+            for (const move of refillData.fallMoves) {
+                const fromCell = document.querySelector(`.cell[data-row="${move.from.row}"][data-col="${move.from.col}"]`);
+                const toCell = document.querySelector(`.cell[data-row="${move.to.row}"][data-col="${move.to.col}"]`);
+                const piece = getPiece(fromCell);
+
+                if (piece && toCell) {
+                    console.log(`ピースを (${move.from.row}, ${move.from.col}) から (${move.to.row}, ${move.to.col}) へ落下させます。`);
+                    // 落下専用のアニメーション(Drop)を使い、DOM構造も変更する
+                    animationPromises.push(animateGoTo(piece, toCell, AnimationType.Drop, true));
+                }
+            }
+        }
+
+        // 2. 新規ピースの補充アニメーションの処理 (newPieces)
+        if (refillData.newPieces && refillData.newPieces.length > 0) {
+            for (const newPieceData of refillData.newPieces) {
+                const targetCell = document.querySelector(`.cell[data-row="${newPieceData.row}"][data-col="${newPieceData.col}"]`);
+                
+                if (targetCell) {
+                    // 新しいピースのDOM要素を生成
+                    const newPiece = document.createElement('div');
+                    newPiece.classList.add('piece', 'new'); // 最初は非表示
+                    newPiece.style.backgroundColor = newPieceData.color;
+                    
+                    // セルに追加
+                    targetCell.appendChild(newPiece);
+
+                    // アニメーションのPromiseを作成
+                    const promise = new Promise(resolve => {
+                        // 少し遅延させてからアニメーションを開始すると自然に見える
+                        setTimeout(() => {
+                            // 'new'クラスを外すと、通常のスタイルが適用されてアニメーションが開始
+                            newPiece.classList.remove('new');
+                            
+                            // アニメーション完了を待つ
+                            newPiece.addEventListener('transitionend', resolve, { once: true });
+                        }, 50); // 50ミリ秒の遅延
+                    });
+                    animationPromises.push(promise);
+                }
+            }
+        }
+        
+        // すべての落下・補充アニメーションが終わるまで待つ
+        await Promise.all(animationPromises);
+        console.log("すべての落下と補充が完了しました。");
     }
 
     // セルのクリックイベントリスナー

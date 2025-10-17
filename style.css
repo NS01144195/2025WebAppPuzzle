@@ -151,6 +151,12 @@ body {
     border: 4px solid #f9f7f0;
 }
 
+/* 新しいピースが追加されるときの初期状態 */
+#game-screen #puzzle-board .piece.new {
+    transform: translateY(-200%);
+    opacity: 0;
+}
+
 /* ピース移動アニメーション */
 #game-screen #puzzle-board .piece.moving {
     /* CSS変数で設定された時間とイージングを使用して移動 */
@@ -159,4 +165,17 @@ body {
     transform: translate(var(--dx), var(--dy));
     /* ピースを z-index で手前に移動 */
     z-index: 100; 
+}
+
+/* ピースの落下アニメーション */
+.piece.drop-animation {
+    /* 少し弾むような、重力感のある動き */
+    transition: transform 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+/* ピース消去アニメーション */
+#game-screen #puzzle-board .piece.disappearing {
+    transform: scale(0.2);
+    opacity: 0;
+    transition: transform 0.2s cubic-bezier(0.5, -0.5, 1, 1), opacity 0.2s ease-out;
 }
