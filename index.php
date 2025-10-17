@@ -53,6 +53,4 @@ if ($_SESSION['current_scene'] === 'game') {
             }
         ?>
     </div>
-    <div id="game-screen" class="screen">
-    </div>
 </body>
