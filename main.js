@@ -63,7 +63,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            // ★★★ 変更点 ★★★
             // ピース自身の位置ではなく、ピースの親である「出発点セル」を取得
             const sourceCell = piece.parentElement;
             if (!sourceCell) {
@@ -79,7 +78,6 @@ document.addEventListener("DOMContentLoaded", () => {
             // セル間の距離を計算 (これがピースの移動距離になる)
             const dx = targetRect.left - sourceRect.left;
             const dy = targetRect.top - sourceRect.top;
-            // ★★★ ここまでが変更点 ★★★
 
             // アニメーション用のクラスを設定
             const animationClass = animationType === AnimationType.Drop ? 'drop-animation' : 'swap-animation';
@@ -301,17 +299,21 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("すべての落下と補充が完了しました。");
     }
 
-    // セルのクリックイベントリスナー
-    document.addEventListener("click", (event) => {
+    // クリックイベントのメインハンドラ
+    const board = document.getElementById('puzzle-board');
+    board.addEventListener("click", async (event) => {
+        // isAnimatingフラグがtrue（アニメーション中）なら、いかなる操作も受け付けない
         if (isAnimating) {
-            console.log("アニメーション中のためクリックを無視します。");
+            console.log("アニメーション中のため入力は無視されます。");
             return;
         }
 
+        // クリックされた要素が.cellまたはその子要素かを確認
         const cell = event.target.closest(".cell");
 
-        // セル以外がクリックされた場合は無視
+        // 盤面の外側がクリックされた場合の処理
         if (!cell) {
+            // もしピースを選択中だったら、選択を解除する
             if (selectedCell) {
                 const piece = getPiece(selectedCell);
                 if (piece) piece.classList.remove("selected");
@@ -321,41 +323,52 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        // 座標を取得 (データ属性から)
-        const row = cell.dataset.row;
-        const col = cell.dataset.col;
-
-        console.log(`クリックされたセル: (${row}, ${col})`);
-
-        // 現在クリックされたセル内のピース要素を取得
+        // クリックされたセルにピースが存在するか確認
         const currentPiece = getPiece(cell);
-        if (!currentPiece) return; // ピースがない場合は何もしない
-
-        // 既に選択されているピースがあるかチェック
-        if (selectedCell) {
-            // 既に選択されているセルを再度クリックした場合（選択解除）
-            if (selectedCell === cell) {
-                currentPiece.classList.remove("selected"); // ピースのクラスを削除
-                selectedCell = null;
-                console.log("ピースの選択が解除されました。");
-            } else {
-                // 2つ目のピースが選択された
-
-                // 交換ロジックを実行
-                handleExchange(selectedCell, cell);
-
-                // 選択状態をリセット
+        if (!currentPiece) {
+            // ピースがないセルがクリックされた場合、選択を解除
+            if(selectedCell) {
+                const piece = getPiece(selectedCell);
+                if (piece) piece.classList.remove("selected");
                 selectedCell = null;
             }
+            return;
+        }
+        
+        // --- ここからピース選択のロジック ---
+
+        // 1つ目のピースが既に選択されている場合
+        if (selectedCell) {
+            // 選択中のセルをもう一度クリックした場合（選択解除）
+            if (selectedCell === cell) {
+                currentPiece.classList.remove("selected");
+                selectedCell = null;
+                console.log("ピースの選択が解除されました。");
+            
+            // 2つ目の、異なるセルがクリックされた場合
+            } else {
+                // --- ここから一連のアニメーション処理を開始 ---
+                isAnimating = true; // 操作ロックを開始
+                
+                // ピースの交換、マッチ判定、削除、落下、補充の一連の処理を呼び出す
+                await handleExchange(selectedCell, cell);
+                
+                // 【TODO】: 本来はこの後に「落下した結果、さらにマッチしていないか？」という
+                // 連鎖判定のループ処理が入ります。
+                
+                isAnimating = false; // 全ての処理が終わったので操作ロックを解除
+                // --- アニメーション処理ここまで ---
+
+                // 処理が終わったら、選択状態をリセット
+                if (getPiece(selectedCell)) getPiece(selectedCell).classList.remove("selected");
+                selectedCell = null;
+            }
+
+        // 1つ目のピースがまだ選択されていない場合
         } else {
-            // 1つ目のピースが選択された
-
-            // 視覚的な選択状態を反映 (ピースにクラスを付与)
             currentPiece.classList.add("selected");
-
-            // 選択されたセルを保持
             selectedCell = cell;
-            console.log("1つ目のピースが選択されました。");
+            console.log(`セル (${cell.dataset.row}, ${cell.dataset.col}) を選択しました。`);
         }
     });
 });
