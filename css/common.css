@@ -1,0 +1,64 @@
+/* ===== 全体・コンテナ ===== */
+body {
+    background-color: #1b1b1b;
+    color: #fff;
+    font-family: "Segoe UI", sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+#game-container {
+    width: 1280px;
+    height: 720px;
+    background: #222;
+    border-radius: 20px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+}
+
+/* ===== 共通の画面設定 ===== */
+.screen {
+    display: none; /* 基本は非表示 */
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+/* 表示するスクリーンにだけこのクラスを付ける */
+.screen.active {
+    display: flex;
+}
+
+/* ===== 共通ボタン (タイトルへ戻る) ===== */
+#title-return-form {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    margin: 0;
+    padding: 0;
+    z-index: 100;
+}
+
+#to-title-button {
+    font-size: 16px;
+    padding: 8px 15px;
+    background: rgb(52, 144, 242);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    z-index: 100;
+    transition: 0.2s;
+}
+
+#to-title-button:hover {
+    background: rgb(43, 138, 221);
+}
