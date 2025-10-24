@@ -6,7 +6,7 @@ class GameState
     private int $movesLeft;
     
     // ゲームのルール設定
-    private int $targetScore = 1000;
+    private int $targetScore = 100;
     private int $startMovesLeft = 20;
     private int $pieceScore = 5;
     private int $comboBonus = 10;
@@ -16,13 +16,14 @@ class GameState
         $this->movesLeft = $this->startMovesLeft;
     }
 
-    // --- 状態の取得 (Getter) ---
+    // 状態の取得
     public function getScore(): int { return $this->score; }
     public function getMovesLeft(): int { return $this->movesLeft; }
     public function getTargetScore(): int { return $this->targetScore; }
     
     /**
      * 現在のゲーム状態（プレイ中, クリア, オーバー）を判定して返す
+     * @return GameStatus
      */
     public function getStatus(): GameStatus
     {
@@ -35,7 +36,7 @@ class GameState
         return GameStatus::PLAYING;
     }
 
-    // --- 状態の更新 (Setter/Mutator) ---
+    // 状態の更新
     public function setScore(int $score): void { $this->score = $score; }
     public function setMovesLeft(int $moves): void { $this->movesLeft = $moves; }
     

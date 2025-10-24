@@ -3,7 +3,6 @@ import { ViewManager } from './ViewManager.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     
-    // --- 初期化処理 ---
     const boardElement = document.getElementById('puzzle-board');
     if (!boardElement) return;
 
@@ -11,10 +10,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const view = new ViewManager();
     
     let selectedCell = null;
-    let isAnimating = false; // アニメーション中の操作をブロックするフラグ
+     // アニメーション中の操作をブロックするフラグ
+    let isAnimating = false;
 
     /**
-     * 2つのセルが隣接しているか判定するヘルパー関数
+     * 2つのセルが隣接しているか判定する
      * @param {HTMLElement} cell1 
      * @param {HTMLElement} cell2 
      * @returns {boolean}
@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return Math.abs(r1 - r2) + Math.abs(c1 - c2) === 1;
     };
 
-    // --- イベントリスナー ---
+    // イベントリスナー
     boardElement.addEventListener('click', async (event) => {
         if (isAnimating) return; // アニメーション中は操作不可
 
@@ -40,11 +40,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (!selectedCell) {
-            // 1. ピースの初回選択
+            // ピースの初回選択
             selectedCell = clickedCell;
             view.selectPiece(view.getPiece(selectedCell));
         } else {
-            // 2. 2つ目のピース選択
+            // 2つ目のピース選択
             const piece1 = view.getPiece(selectedCell);
             view.deselectPiece(piece1); // 最初のピースの選択表示を解除
 
@@ -55,9 +55,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }   
 
             if (!isAdjacent(selectedCell, clickedCell)) {
+                // 隣接していない場合は選択解除
                 console.log("隣接していません。選択をリセットします。");
-                selectedCell = null; // 選択をリセット
-                return; // ここで処理を終了
+                selectedCell = null;
+                return;
             }
 
             isAnimating = true;
@@ -67,13 +68,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const r2 = parseInt(clickedCell.dataset.row);
             const c2 = parseInt(clickedCell.dataset.col);
             
-            // 2-1. 見た目の交換アニメーション
+            // 見た目の交換アニメーション
             await view.animateSwap(piece1, view.getPiece(clickedCell));
 
-            // 2-2. APIにリクエストを送信
+            // APIにリクエストを送信
             const result = await api.swapPieces(r1, c1, r2, c2);
 
-            // 2-3. 結果に応じて連鎖アニメーションを再生
+            // 結果に応じて連鎖アニメーションを再生
             if (result.status === 'success' && result.chainSteps.length > 0) {
                 for (const step of result.chainSteps) {
                     await view.animateRemove(step.matchedCoords);

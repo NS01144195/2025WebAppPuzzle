@@ -4,22 +4,36 @@ session_start();
 // 必要なクラスファイルを読み込む
 require_once 'Model/Util/SceneManager.php';
 require_once 'Model/GameController.php';
-// require_once 'GameController.php'; // ←今後作成するクラス
-// ... 他のクラスファイル
 
 // SceneManagerを生成し、現在のシーン情報を取得
 $sceneManager = new SceneManager();
 $view_file = $sceneManager->getSceneViewFile();
 $current_scene = $sceneManager->getCurrentScene();
 
-// ゲームシーンの場合のみ、ゲームロジックの準備を行う
+// ゲームシーンの場合、ゲームロジックの準備を行う
 if ($current_scene === 'game') {
     $gameController = new GameController();
     $gameController->prepareGame(); // ゲームの準備を指示
     $viewData = $gameController->getViewData(); // View用のデータを取得
     
-    // Viewに変数を展開 (extractを使うと便利)
+    // Viewに変数を展開
     extract($viewData);
+}
+
+// リザルトシーンの場合、ビューに渡すデータを準備する
+if ($current_scene === 'result') {
+    // セッションからゲーム結果を取得
+    $gameState = $_SESSION['gameState'] ?? 0;
+    $finalScore = $_SESSION['score'] ?? 0;
+    $movesLeft = $_SESSION['movesLeft'] ?? 0;
+
+    // 表示するテキストを決定
+    $resultText = '';
+    if ($gameState === 2) { // GameStatus::CLEAR->value
+        $resultText = 'ゲームクリア！';
+    } elseif ($gameState === 3) { // GameStatus::OVER->value
+        $resultText = 'ゲームオーバー…';
+    }
 }
 
 ?>

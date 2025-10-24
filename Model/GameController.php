@@ -54,6 +54,11 @@ class GameController
 
     /**
      * ピース交換から連鎖までの処理を実行する
+     * @param int $r1 交換するピース1の行
+     * @param int $c1 交換するピース1の列
+     * @param int $r2 交換するピース2の行
+     * @param int $c2 交換するピース2の列
+     * @return array フロントエンドに返すレスポンスデータ
      */
     private function processSwap(int $r1, int $c1, int $r2, int $c2): array
     {
