@@ -13,6 +13,20 @@ document.addEventListener('DOMContentLoaded', () => {
     let selectedCell = null;
     let isAnimating = false; // アニメーション中の操作をブロックするフラグ
 
+    /**
+     * 2つのセルが隣接しているか判定するヘルパー関数
+     * @param {HTMLElement} cell1 
+     * @param {HTMLElement} cell2 
+     * @returns {boolean}
+     */
+    const isAdjacent = (cell1, cell2) => {
+        const r1 = parseInt(cell1.dataset.row);
+        const c1 = parseInt(cell1.dataset.col);
+        const r2 = parseInt(cell2.dataset.row);
+        const c2 = parseInt(cell2.dataset.col);
+        return Math.abs(r1 - r2) + Math.abs(c1 - c2) === 1;
+    };
+
     // --- イベントリスナー ---
     boardElement.addEventListener('click', async (event) => {
         if (isAnimating) return; // アニメーション中は操作不可
@@ -38,9 +52,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 // 同じピースをクリックしたら選択解除
                 selectedCell = null;
                 return;
+            }   
+
+            if (!isAdjacent(selectedCell, clickedCell)) {
+                console.log("隣接していません。選択をリセットします。");
+                selectedCell = null; // 選択をリセット
+                return; // ここで処理を終了
             }
-            
-            // --- メインロジック ---
+
             isAnimating = true;
 
             const r1 = parseInt(selectedCell.dataset.row);
@@ -61,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     // ピースが消えた後、次のピースが落ちてくるまでに少しだけ待つ
                     await new Promise(resolve => setTimeout(resolve, 50));
-                    
+
                     await view.animateFallAndRefill(step.refillData);
                 }
                 view.updateScore(result.score);
