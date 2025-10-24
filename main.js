@@ -2,11 +2,6 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("main.js loaded");
     let isAnimating = false;
 
-    /**
-     * アニメーションの種類を定義する定数
-     * Swap: ピース交換時の素早い移動
-     * Drop: ピースが落下する際の重力感のある移動
-     */
     const AnimationType = {
         Swap: 'swap',
         Drop: 'drop'
@@ -60,55 +55,29 @@ document.addEventListener("DOMContentLoaded", () => {
         return new Promise(resolve => {
             if (!piece || !targetCell) return resolve();
 
-            const sourceCell = piece.parentElement;
-            if (!sourceCell) return resolve();
+            // トランジション設定（拡大縮小＋フェード）
+            piece.style.transition = "opacity 0.15s ease, transform 0.15s ease";
 
-            const sourceRect = sourceCell.getBoundingClientRect();
-            const targetRect = targetCell.getBoundingClientRect();
-            const dx = targetRect.left - sourceRect.left;
-            const dy = targetRect.top - sourceRect.top;
+            // 一瞬でフェードアウト＆縮小
+            piece.style.opacity = "0";
+            piece.style.transform = "scale(0.8)";
 
-            const animationClass = animationType === AnimationType.Drop ? 'drop-animation' : 'swap-animation';
+            // フェードアウト完了後に移動
+            setTimeout(() => {
+                targetCell.appendChild(piece);
 
-            // transitionを設定
-            piece.style.transition = 'transform 0.3s ease';
-            piece.classList.add(animationClass);
+                // 再描画フレームを待ってフェードイン開始
+                requestAnimationFrame(() => {
+                    piece.style.transform = "scale(1)";
+                    piece.style.opacity = "1";
 
-            const onTransitionEnd = (e) => {
-                if (e.propertyName !== 'transform') return;
-                clearTimeout(timeout);
-                piece.removeEventListener('transitionend', onTransitionEnd);
-                piece.style.removeProperty('transition');
-                piece.style.removeProperty('transform');
-                piece.classList.remove(animationClass);
-                if (isPermanent) targetCell.appendChild(piece);
-                resolve();
-            };
-
-            piece.addEventListener('transitionend', onTransitionEnd);
-
-            // 強制レイアウト確定
-            void piece.offsetWidth;
-
-            // 実際に動かす
-            piece.style.transform = `translate(${dx}px, ${dy}px)`;
-
-            // 保険タイマー（transitionendが来なかった場合）
-            const timeout = setTimeout(() => {
-                piece.removeEventListener('transitionend', onTransitionEnd);
-                piece.style.removeProperty('transition');
-                piece.style.removeProperty('transform');
-                piece.classList.remove(animationClass);
-                if (isPermanent) targetCell.appendChild(piece);
-                resolve();
-            }, 600); // transition時間 + 余裕
+                    // 完了扱い
+                    setTimeout(() => resolve(), 200);
+                });
+            }, 150);
         });
     }
-
-    /**
-     * 指定された座標にあるピースをアニメーション付きで削除する
-     * @param {Array<Object>} coordsToRemove 削除するピースの座標リスト [{row: r, col: c}, ...]
-     */
+    
     /**
      * マッチしたピースを消すアニメーションを実行する (時間ベースの確実なバージョン)
      * @param {Array<object>} matchedCoords 消えるピースの座標配列
@@ -177,6 +146,8 @@ document.addEventListener("DOMContentLoaded", () => {
             animateGoTo(piece1, cell2, AnimationType.Swap, false),
             animateGoTo(piece2, cell1, AnimationType.Swap, false)
         ]);
+
+        await new Promise(resolve => setTimeout(resolve, 100));
 
         try {
             // 2. サーバーにリクエストを送信し、連鎖の全手順を受け取る

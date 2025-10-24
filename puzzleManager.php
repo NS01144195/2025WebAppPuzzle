@@ -10,13 +10,16 @@ enum PieceColor: string {
 class PuzzleManager
 {
     private $size;      // 盤面のサイズ
-    private $colors;    // 使用する色
     private $board;     // 盤面
+    private $score;
+    private $movesLeft;
 
     // コンストラクタ
     public function __construct($size = 9) {
         $this->size = $size;
         $this->board = [];
+        $this->score = 0;
+        $this->movesLeft = 20;
     }
 
     // 盤面初期化

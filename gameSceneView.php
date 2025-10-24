@@ -28,4 +28,8 @@
         }
         ?>
     </div>
+    <div id="right-ui">
+        <div id="score-display">Score: 0</div>
+        <div id="moves-display">Moves Left: 20</div>
+    </div>
 </div>

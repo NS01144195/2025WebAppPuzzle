@@ -98,6 +98,18 @@ body {
     box-sizing: border-box;
 }
 
+/* 右上のUI */
+#game-screen #right-ui {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background-color: #fff;
+    color: #333;
+    font-size: 18px;
+    text-align: right;
+    z-index: 100;
+}
+
 /* パズルボード */
 #game-screen #puzzle-board {
     width: 600px;
@@ -180,16 +192,4 @@ body {
     transform: scale(0.2);
     opacity: 0;
     transition: transform 0.2s cubic-bezier(0.5, -0.5, 1, 1), opacity 0.2s ease-out;
-}
-
-/* 交換用アニメーションクラス */
-.swap-animation {
-    transition-duration: 0.2s;
-    transition-timing-function: ease-in-out;
-}
-
-/* 落下用アニメーションクラス */
-.drop-animation {
-    transition-duration: 0.3s; /* 交換より少し遅くする */
-    transition-timing-function: ease-in-out;
 }
