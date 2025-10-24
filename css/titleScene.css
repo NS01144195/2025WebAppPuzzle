@@ -1,0 +1,20 @@
+/* ===== titleScene ===== */
+#title-screen h1 {
+    font-size: 64px;
+    margin-bottom: 40px;
+}
+
+#title-screen button {
+    font-size: 28px;
+    padding: 16px 60px;
+    background: #5af;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    color: white;
+    transition: 0.2s;
+}
+
+#title-screen button:hover {
+    background: #7cf;
+}
