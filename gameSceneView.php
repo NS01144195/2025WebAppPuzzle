@@ -1,15 +1,13 @@
-<form method="POST" action="index.php" id="title-return-form">
-    <input type="hidden" name="action" value="titleScene">
-    <button id="to-title-button" class="control-button" type="submit">タイトルへ戻る</button>
-</form>
-
 <div id="game-screen" class="scene-view screen active">
     <div id="puzzle-board">
         <?php
         // index.phpで$puzzleManagerが初期化されていることを前提とする
         $board = $puzzleManager->getBoard();
         $boardSize = count($board); // 盤面のサイズを取得
-        
+        $targetScore = isset($puzzleManager) ? $puzzleManager->getTargetScore() : 0;
+        $currentScore = isset($puzzleManager) ? $puzzleManager->getScore() : 0;
+        $movesLeft = isset($puzzleManager) ? $puzzleManager->getMoves() : 0;
+
         // 盤面が空でないことを確認
         if ($boardSize > 0) {
             for ($row = 0; $row < $boardSize; $row++) {
@@ -29,9 +27,9 @@
         ?>
     </div>
     <div id="right-ui">
-        <div id="target-score">Target Score: <span id="target-score-value">1000</span></div>
-        <div id="score-display">Score: <span id="score-value">0</span></div>
-        <div id="moves-display">Moves Left: <span id="moves-left-value">20</span></div>
+        <div id="target-score">目標スコア: <span id="target-score-value"><?= $targetScore ?></span></div>
+        <div id="score-display">スコア: <span id="score-value"><?= $currentScore ?></span></div>
+        <div id="moves-display">残りライフ: <span id="moves-left-value"><?= $movesLeft ?></span></div>
     </div>
     <!-- リザルト用オーバーレイ -->
     <div id="result-overlay">

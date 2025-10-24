@@ -1,5 +1,4 @@
 <?php
-// PHPがメインの制御を行う
 session_start();
 
 // 画面の状態管理：現在のシーンをセッションから取得
@@ -44,6 +43,7 @@ $view_file = $_SESSION['current_scene'] . 'SceneView.php';
 ?>
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <!-- viewPortをレスポンシブな設定に変更 -->
@@ -52,15 +52,23 @@ $view_file = $_SESSION['current_scene'] . 'SceneView.php';
     <link rel="stylesheet" href="style.css">
     <script src="main.js" defer></script>
 </head>
+
 <body>
     <div id="game-container">
+        <!-- タイトルシーン以外ではタイトルへ戻るボタンを表示 -->
+        <?php if ($view_file !== "titleSceneView.php"): ?>
+            <form method="POST" action="index.php" id="title-return-form">
+                <input type="hidden" name="action" value="titleScene">
+                <button id="to-title-button" class="control-button" type="submit">タイトルへ戻る</button>
+            </form>
+        <?php endif; ?>
         <?php
-            if (file_exists($view_file)) {
-                // $puzzleManagerのインスタンスをビューファイルで使えるようにする
-                require_once $view_file; 
-            } else {
-                echo "<div>エラー: ビューファイルが見つかりません。</div>";
-            }
+        if (file_exists($view_file)) {
+            // $puzzleManagerのインスタンスをビューファイルで使えるようにする
+            require_once $view_file;
+        } else {
+            echo "<div>エラー: ビューファイルが見つかりません。</div>";
+        }
         ?>
     </div>
 </body>

@@ -14,7 +14,7 @@ class PuzzleManager
     private $score;
     private $movesLeft;
 
-    private $targetScore = 1000; // 目標スコア
+    private $targetScore = 10; // 目標スコア
     private $pieceScore = 5; // ピース1つあたりの得点
     private $comboBonus = 10; // 連鎖ごとのボーナス点
     private $startMovesLeft = 1; // ゲーム開始時の手数
@@ -336,6 +336,7 @@ class PuzzleManager
 
     public function getScore() { return $this->score; }
     public function getMoves() { return $this->movesLeft; }
+    public function getTargetScore() { return $this->targetScore; }
 
     public function addScore(int $points) { $this->score += $points; }
     public function useMove() { if ($this->movesLeft > 0) $this->movesLeft--; }

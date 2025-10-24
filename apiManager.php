@@ -62,6 +62,7 @@ switch ($data['action']) {
             $_SESSION['board'] = $puzzleManager->getBoard();
             $_SESSION['score'] = $puzzleManager->getScore();
             $_SESSION['movesLeft'] = $puzzleManager->getMoves();
+            $_SESSION['gameState'] = $puzzleManager->getGameState();
 
             // 3. 結果をレスポンスとして返す
             $response = [

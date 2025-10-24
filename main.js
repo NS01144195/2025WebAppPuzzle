@@ -193,8 +193,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 console.log("ゲーム状態判定開始:", result.gameState);
                 switch (result.gameState) {
                     case 1: break;
-                    case 2: await uiShowResult("ゲームクリア！おめでとう！"); break;
-                    case 3: await uiShowResult("ゲームオーバー…残念！"); break;
+                    case 2: await uiShowResult("ゲームクリア！"); break;
+                    case 3: await uiShowResult("ゲームオーバー…"); break;
                 }
 
             } else {
@@ -339,7 +339,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /**
      * 結果画面を表示
-     * @param {string} message 表示するメッセージ ("ゲームクリア" / "ゲームオーバー" など)
+     * @param {string} message 表示するメッセージ
      */
     async function uiShowResult(message) {
         const overlay = document.getElementById('result-overlay');
