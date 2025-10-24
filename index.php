@@ -15,6 +15,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $_SESSION['current_scene'] = 'title';
         // タイトルに戻るときは盤面をリセット
         unset($_SESSION['board']);
+    } elseif ($_POST['action'] === 'resultScene') {
+        $_SESSION['current_scene'] = 'result';
     }
     // 画面遷移後はリダイレクトしてPOSTデータをクリアする（二重送信防止）
     header('Location: index.php');

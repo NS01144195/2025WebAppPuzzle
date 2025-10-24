@@ -350,11 +350,14 @@ document.addEventListener("DOMContentLoaded", () => {
             messageElement.textContent = message;
             overlay.style.display = 'flex';
 
-            if (redirectUrl) {
-                setTimeout(() => {
-                    window.location.href = redirectUrl;
-                }, 3000);
-            }
+            setTimeout(async () => {
+                await fetch('index.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: 'action=resultScene'
+                });
+                location.reload();
+            }, 2000);
         }
     }
 });
