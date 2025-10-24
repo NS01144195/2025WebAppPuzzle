@@ -32,6 +32,9 @@ class Board
         }
     }
     
+    /**
+     * 初期配置でマッチが発生しているかチェックする
+     */
     private function hasInitialMatch(int $r, int $c): bool
     {
         $color = $this->grid[$r][$c];
@@ -40,6 +43,9 @@ class Board
         return false;
     }
 
+    /**
+     * 指定した2つのピースを交換する
+     */
     public function swapPieces(int $r1, int $c1, int $r2, int $c2): void
     {
         $tmp = $this->grid[$r1][$c1];
@@ -47,6 +53,9 @@ class Board
         $this->grid[$r2][$c2] = $tmp;
     }
 
+    /**
+     * 指定した座標のピースを削除する
+     */
     public function removePieces(array $coords): void
     {
         foreach ($coords as $coord) {
@@ -54,6 +63,10 @@ class Board
         }
     }
 
+    /**
+     * ピースを下に詰めて、新しいピースを生成する
+     * @return array 生成された新しいピースの情報
+     */
     public function refill(): array
     {
         $fallMoves = [];

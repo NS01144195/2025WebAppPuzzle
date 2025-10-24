@@ -1,0 +1,22 @@
+<?php
+// このファイルは SceneManager によって読み込まれる
+// リザルトシーン
+?>
+<?php
+/**
+ * このビューを読み込む前に、以下の変数が定義されている必要がある
+ * @var string $resultText  ("ゲームクリア！" または "ゲームオーバー…")
+ * @var int    $finalScore  (最終スコア)
+ * @var int    $movesLeft   (残り手数)
+ */
+?>
+<div id="result-screen" class="scene-view screen active">
+    
+    <?php // データが渡されている場合のみ表示 ?>
+    <?php if (isset($resultText)): ?>
+        <h1><?= htmlspecialchars($resultText) ?></h1>
+        <p>スコア: <?= htmlspecialchars($finalScore) ?></p>
+        <p>残りライフ: <?= htmlspecialchars($movesLeft) ?></p>
+    <?php endif; ?>
+
+</div>
