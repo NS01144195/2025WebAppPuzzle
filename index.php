@@ -38,7 +38,7 @@ if ($current_scene === 'game') {
         echo '<link rel="stylesheet" href="' . $scene_css_file . '">';
     }
     ?>
-    <script src="main.js" defer></script>
+    <script src="js/main.js" type="module" defer></script>
 </head>
 
 <body>
