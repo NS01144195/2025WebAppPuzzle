@@ -12,11 +12,14 @@ $current_scene = $sceneManager->getCurrentScene();
 
 // ゲームシーンの場合、ゲームロジックの準備を行う
 if ($current_scene === 'game') {
-    $gameController = new GameController();
-    $gameController->prepareGame(); // ゲームの準備を指示
-    $viewData = $gameController->getViewData(); // View用のデータを取得
+    // POSTされた難易度を取得（なければ'normal'）
+    $difficulty = $_POST['difficulty'] ?? 'normal';
     
-    // Viewに変数を展開
+    // GameControllerに難易度を渡して生成
+    $gameController = new GameController($difficulty);
+    $gameController->prepareGame();
+    $viewData = $gameController->getViewData();
+    
     extract($viewData);
 }
 

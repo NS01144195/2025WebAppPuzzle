@@ -10,10 +10,9 @@ class GameController
     private Board $board;
     private MatchFinder $matchFinder;
 
-    public function __construct()
+    public function __construct(string $difficulty = 'normal')
     {
-        // インスタンス化する
-        $this->gameState = new GameState();
+        $this->gameState = new GameState($difficulty); // ← 難易度を渡す
         $this->board = new Board();
         $this->matchFinder = new MatchFinder();
     }
