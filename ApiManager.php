@@ -16,8 +16,12 @@ if (!isset($data['action']) || !$data) {
     exit;
 }
 
-// GameControllerを生成し、アクション処理を依頼
-$gameController = new GameController();
+// セッションから現在の難易度を取得（なければ'normal'をデフォルトにする）
+$difficulty = $_SESSION['difficulty'] ?? 'normal';
+
+// GameControllerに難易度を渡して生成し、アクション処理を依頼
+$gameController = new GameController($difficulty);
+
 $response = $gameController->handlePlayerAction($data['action'], $data);
 
 // Controllerから返された結果をJSONで出力

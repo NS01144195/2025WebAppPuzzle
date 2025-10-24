@@ -11,8 +11,28 @@ class GameState
     private int $pieceScore = 5;
     private int $comboBonus = 10;
 
-    public function __construct()
+    public function __construct(string $difficulty = 'normal')
     {
+        // 難易度に応じてパラメータを設定
+        switch ($difficulty) {
+            case 'tutorial':
+                $this->targetScore = 500;
+                $this->startMovesLeft = 99;
+                break;
+            case 'easy':
+                $this->targetScore = 1000;
+                $this->startMovesLeft = 30;
+                break;
+            case 'hard':
+                $this->targetScore = 2000;
+                $this->startMovesLeft = 15;
+                break;
+            case 'normal':
+            default:
+                $this->targetScore = 1500;
+                $this->startMovesLeft = 20;
+                break;
+        }
         $this->movesLeft = $this->startMovesLeft;
     }
 

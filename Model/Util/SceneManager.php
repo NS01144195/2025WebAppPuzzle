@@ -23,6 +23,9 @@ class SceneManager
         $newScene = null;
 
         switch ($action) {
+            case 'selectScene':
+                $newScene = 'select';
+                break;
             case 'gameScene':
                 $newScene = 'game';
                 // ゲーム開始時にセッションデータをリセット
