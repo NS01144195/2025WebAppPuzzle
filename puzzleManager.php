@@ -14,12 +14,22 @@ class PuzzleManager
     private $score;
     private $movesLeft;
 
+    private $targetScore = 1000; // 目標スコア
+    private $pieceScore = 5; // ピース1つあたりの得点
+    private $comboBonus = 10; // 連鎖ごとのボーナス点
+    private $startMovesLeft = 1; // ゲーム開始時の手数
+
+    // ゲーム進行状態
+    const GAME_STATE_PLAYING = 1;   // まだプレイ中
+    const GAME_STATE_CLEAR   = 2;   // クリア
+    const GAME_STATE_OVER    = 3;   // ゲームオーバー
+
     // コンストラクタ
     public function __construct($size = 9) {
         $this->size = $size;
         $this->board = [];
         $this->score = 0;
-        $this->movesLeft = 20;
+        $this->movesLeft = $this->startMovesLeft;
     }
 
     // 盤面初期化
@@ -31,6 +41,10 @@ class PuzzleManager
     {
         $colors = PieceColor::cases();
         $this->board = [];
+        $this->score = 0;
+        $this->movesLeft = $this->startMovesLeft;
+        $_SESSION['score'] = $this->score;
+        $_SESSION['movesLeft'] = $this->movesLeft;
 
         for ($row = 0; $row < $this->size; $row++) {
             $this->board[$row] = [];
@@ -99,6 +113,12 @@ class PuzzleManager
             $matchedCoords = $this->findMatches();
             $isMatch = !empty($matchedCoords); // マッチがあればループが続く
         }
+
+        $this->useMove(); // 手数を減らす
+        // スコア計算
+        // コンボ数ボーナス
+        $this->addScore(count($chainSteps) * $this->comboBonus);
+
         return $chainSteps;
     }
 
@@ -287,6 +307,7 @@ class PuzzleManager
     {
         foreach ($matchedCoords as $coords) {
             $this->board[$coords['row']][$coords['col']] = null;
+            $this->addScore($this->pieceScore); // ピース1つあたり5点加算
         }
     }
 
@@ -308,6 +329,32 @@ class PuzzleManager
         $this->board = $board;
         // 盤面のサイズが変更される可能性を考慮し、サイズも更新
         $this->size = count($board);
+    }
+
+    public function setScore(int $score) { $this->score = $score; }
+    public function setMoves(int $moves) { $this->movesLeft = $moves; }
+
+    public function getScore() { return $this->score; }
+    public function getMoves() { return $this->movesLeft; }
+
+    public function addScore(int $points) { $this->score += $points; }
+    public function useMove() { if ($this->movesLeft > 0) $this->movesLeft--; }
+    
+    /**
+     * ゲームの現在状態を返す
+     * @return int 1:プレイ中, 2:クリア, 3:ゲームオーバー
+     */
+    public function getGameState()
+    {
+        if ($this->score >= $this->targetScore) {
+            return self::GAME_STATE_CLEAR; // スコア到達でクリア
+        }
+
+        if ($this->movesLeft <= 0) {
+            return self::GAME_STATE_OVER; // 手数ゼロでゲームオーバー
+        }
+
+        return self::GAME_STATE_PLAYING; // それ以外はプレイ中
     }
 }
 ?>

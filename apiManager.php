@@ -23,6 +23,12 @@ if (!isset($_SESSION['board'])) {
     echo json_encode(['status' => 'error', 'message' => '盤面データがセッションに存在しません。']);
     exit;
 }
+if (isset($_SESSION['score'])) {
+    $puzzleManager->setScore($_SESSION['score']);
+}
+if (isset($_SESSION['movesLeft'])) {
+    $puzzleManager->setMoves($_SESSION['movesLeft']);
+}
 $puzzleManager->setBoard($_SESSION['board']);
 
 
@@ -54,11 +60,16 @@ switch ($data['action']) {
 
             // 2. 最終盤面をセッションに保存
             $_SESSION['board'] = $puzzleManager->getBoard();
+            $_SESSION['score'] = $puzzleManager->getScore();
+            $_SESSION['movesLeft'] = $puzzleManager->getMoves();
 
             // 3. 結果をレスポンスとして返す
             $response = [
                 'status' => 'success', 
-                'chainSteps' => $chainSteps
+                'chainSteps' => $chainSteps,
+                'score' => $puzzleManager->getScore(),
+                'movesLeft' => $puzzleManager->getMoves(),
+                'gameState' => $puzzleManager->getGameState()
             ];
         } else {
             // エラー処理

@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }, 150);
         });
     }
-    
+
     /**
      * マッチしたピースを消すアニメーションを実行する (時間ベースの確実なバージョン)
      * @param {Array<object>} matchedCoords 消えるピースの座標配列
@@ -112,7 +112,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 piece.parentElement.removeChild(piece);
             }
         }
-        
+
         console.log("すべてのピースの削除が完了しました。");
     }
 
@@ -184,6 +184,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     // その後、ピースの落下と補充のアニメーションを実行し、それが終わるのを待つ
                     await animateFallAndRefill(step.refillData);
+                }
+
+                // UI更新
+                await uiUpdateScore(result.score);
+                await uiUpdateMovesLeft(result.movesLeft);
+
+                console.log("ゲーム状態判定開始:", result.gameState);
+                switch (result.gameState) {
+                    case 1: break;
+                    case 2: await uiShowResult("ゲームクリア！おめでとう！"); break;
+                    case 3: await uiShowResult("ゲームオーバー…残念！"); break;
                 }
 
             } else {
@@ -289,19 +300,19 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-                if (selectedCell) {
+            if (selectedCell) {
                 // 先に、1つ目のピースの選択状態を解除する
                 if (getPiece(selectedCell)) {
                     getPiece(selectedCell).classList.remove("selected");
                 }
-                
+
                 // もし違うセルをクリックし、かつ隣接していれば交換処理を実行
                 if (selectedCell !== cell && isAdjacent(selectedCell, cell)) {
                     isAnimating = true;
                     await handleExchange(selectedCell, cell);
                     isAnimating = false;
                 }
-                
+
                 // 最後に、選択状態をリセットする
                 selectedCell = null;
 
@@ -310,5 +321,40 @@ document.addEventListener("DOMContentLoaded", () => {
                 selectedCell = cell;
             }
         });
+    }
+
+    async function uiUpdateScore(newScore) {
+        const scoreElement = document.getElementById('score-value');
+        if (scoreElement) {
+            scoreElement.textContent = newScore;
+        }
+    }
+
+    async function uiUpdateMovesLeft(newMovesLeft) {
+        const movesLeftElement = document.getElementById('moves-left-value');
+        if (movesLeftElement) {
+            movesLeftElement.textContent = newMovesLeft;
+        }
+    }
+
+    /**
+     * 結果画面を表示
+     * @param {string} message 表示するメッセージ ("ゲームクリア" / "ゲームオーバー" など)
+     */
+    async function uiShowResult(message) {
+        const overlay = document.getElementById('result-overlay');
+        const messageElement = document.getElementById('result-message');
+        console.log("uiShowResult called", overlay, messageElement);
+
+        if (overlay && messageElement) {
+            messageElement.textContent = message;
+            overlay.style.display = 'flex';
+
+            if (redirectUrl) {
+                setTimeout(() => {
+                    window.location.href = redirectUrl;
+                }, 3000);
+            }
+        }
     }
 });

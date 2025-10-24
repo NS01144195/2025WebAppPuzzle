@@ -16,7 +16,7 @@
                 for ($col = 0; $col < $boardSize; $col++) {
                     // $board[$row][$col] には色の文字列（例: 'red'）が格納されている
                     $color = htmlspecialchars($board[$row][$col]);
-                    
+
                     echo '<div class="cell" data-row="' . $row . '" data-col="' . $col . '">';
                     // .piece divがピースを表す
                     echo '<div class="piece" style="background-color:' . $color . '"></div>';
@@ -29,7 +29,12 @@
         ?>
     </div>
     <div id="right-ui">
-        <div id="score-display">Score: 0</div>
-        <div id="moves-display">Moves Left: 20</div>
+        <div id="target-score">Target Score: <span id="target-score-value">1000</span></div>
+        <div id="score-display">Score: <span id="score-value">0</span></div>
+        <div id="moves-display">Moves Left: <span id="moves-left-value">20</span></div>
+    </div>
+    <!-- リザルト用オーバーレイ -->
+    <div id="result-overlay">
+        <div id="result-message"></div>
     </div>
 </div>
