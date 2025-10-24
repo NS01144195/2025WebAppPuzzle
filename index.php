@@ -2,7 +2,8 @@
 session_start();
 
 // 必要なクラスファイルを読み込む
-require_once 'SceneManager.php';
+require_once 'Model/Util/SceneManager.php';
+require_once 'Model/GameController.php';
 // require_once 'GameController.php'; // ←今後作成するクラス
 // ... 他のクラスファイル
 
@@ -13,15 +14,18 @@ $current_scene = $sceneManager->getCurrentScene();
 
 // ゲームシーンの場合のみ、ゲームロジックの準備を行う
 if ($current_scene === 'game') {
-    // ※これは今後作成するGameControllerの呼び出し例です
-    // $gameController = new GameController();
-    // $gameController->prepareGame();
-    // $viewData = $gameController->getViewData();
+    $gameController = new GameController();
+    $gameController->prepareGame(); // ゲームの準備を指示
+    $viewData = $gameController->getViewData(); // View用のデータを取得
+    
+    // Viewに変数を展開 (extractを使うと便利)
+    extract($viewData);
 }
 
 ?>
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -36,6 +40,7 @@ if ($current_scene === 'game') {
     ?>
     <script src="main.js" defer></script>
 </head>
+
 <body>
     <div id="game-container">
         <?php if ($current_scene !== 'title'): ?>
@@ -56,4 +61,5 @@ if ($current_scene === 'game') {
         ?>
     </div>
 </body>
+
 </html>

@@ -59,6 +59,6 @@ class SceneManager
      */
     public function getSceneViewFile(): string
     {
-        return $this->currentScene . 'SceneView.php';
+        return 'View/' . $this->currentScene . 'SceneView.php';
     }
 }
