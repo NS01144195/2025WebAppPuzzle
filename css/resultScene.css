@@ -13,7 +13,7 @@
     font-size: 48px;
     color: #ffd700; /* ゴールド */
     margin-bottom: 20px;
-    text-shadow: 2px 2px 4px black;
+    text-shadow: 2px 2px 4px #000000;
     /* 点滅するようなアニメーション */
     animation: blink-animation 1.5s infinite;
 }
