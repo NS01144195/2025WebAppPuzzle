@@ -1,7 +1,7 @@
 /* ===== ベース設定: ページ全体のレイアウトと背景設定 ===== */
 body {
     background-color: #1b1b1b;
-    color: #fff;
+    color: #ffffff;
     font-family: "Segoe UI", sans-serif;
     display: flex;
     justify-content: center;
@@ -14,7 +14,7 @@ body {
 #game-container {
     width: 1280px;
     height: 720px;
-    background: #222;
+    background: #222222;
     border-radius: 20px;
     overflow: hidden;
     display: flex;
@@ -52,8 +52,8 @@ body {
 #to-title-button {
     font-size: 16px;
     padding: 8px 15px;
-    background: rgb(52, 144, 242);
-    color: white;
+    background: #3490f2;
+    color: #ffffff;
     border: none;
     border-radius: 8px;
     cursor: pointer;
@@ -63,5 +63,5 @@ body {
 
 /* ===== ボタンホバー: タイトルボタンのホバー時の視覚的フィードバック ===== */
 #to-title-button:hover {
-    background: rgb(43, 138, 221);
+    background: #2b8add;
 }

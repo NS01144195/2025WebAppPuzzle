@@ -8,15 +8,15 @@
 #title-screen button {
     font-size: 28px;
     padding: 16px 60px;
-    background: #5af;
+    background: #55aaff;
     border: none;
     border-radius: 12px;
     cursor: pointer;
-    color: white;
+    color: #ffffff;
     transition: 0.2s;
 }
 
 /* ===== ボタンホバー: スタートボタンのホバーエフェクト設定 ===== */
 #title-screen button:hover {
-    background: #7cf;
+    background: #77ccff;
 }
