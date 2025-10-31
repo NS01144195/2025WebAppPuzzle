@@ -8,7 +8,7 @@ export class ViewManager {
     }
 
     /**
-     * 指定されたセルのピース要素を取得する
+     * 指定されたセルのピース要素を取得する。
      * @param {HTMLElement} cell 
      * @returns {HTMLElement | null}
      */
@@ -17,7 +17,7 @@ export class ViewManager {
     }
 
     /**
-     * スコア表示を更新する
+     * スコア表示を更新する。
      * @param {number} newScore 
      */
     updateScore(newScore) {
@@ -25,7 +25,7 @@ export class ViewManager {
     }
 
     /**
-     * 残り手数表示を更新する
+     * 残り手数表示を更新する。
      * @param {number} newMoves 
      */
     updateMoves(newMoves) {
@@ -33,7 +33,7 @@ export class ViewManager {
     }
 
     /**
-     * ピースを選択状態のデザインにする
+     * ピースを選択状態のデザインにする。
      * @param {HTMLElement} piece 
      */
     selectPiece(piece) {
@@ -41,7 +41,7 @@ export class ViewManager {
     }
 
     /**
-     * ピースの選択状態を解除する
+     * ピースの選択状態を解除する。
      * @param {HTMLElement} piece 
      */
     deselectPiece(piece) {
@@ -49,25 +49,25 @@ export class ViewManager {
     }
 
     /**
-     * 2つのピースを交換するアニメーション
+     * 2つのピースを交換するアニメーション。
      * @param {HTMLElement} piece1 
      * @param {HTMLElement} piece2 
      */
     async animateSwap(piece1, piece2) {
         if (!piece1 || !piece2) return;
 
-        // 各ピースの位置情報を取得
+        // INFO: 各ピースの位置情報を取得する。
         const rect1 = piece1.getBoundingClientRect();
         const rect2 = piece2.getBoundingClientRect();
 
-        // CSS transformを使って移動させる
+        // INFO: CSS transform でスムーズに移動させる。
         piece1.style.transform = `translate(${rect2.left - rect1.left}px, ${rect2.top - rect1.top}px)`;
         piece2.style.transform = `translate(${rect1.left - rect2.left}px, ${rect1.top - rect2.top}px)`;
 
-        // CSS transitionの時間だけ待つ
+        // NOTE: トランジションが完了するまで待機する。
         await new Promise(resolve => setTimeout(resolve, 150));
 
-        // transformをリセットし、実際にDOM構造を入れ替える
+        // NOTE: transform をリセットし、DOM 構造を入れ替える。
         piece1.style.transform = '';
         piece2.style.transform = '';
         const cell1 = piece1.parentElement;
@@ -77,12 +77,12 @@ export class ViewManager {
     }
 
     /**
-     * マッチしたピースを消すアニメーション
+     * マッチしたピースを消すアニメーション。
      * @param {Array<object>} matchedCoords 
      */
     async animateRemove(matchedCoords) {
         const piecesToRemove = [];
-        // 消えるピースに一斉にクラスを付与
+        // NOTE: 一斉にクラスを付与して消滅エフェクトを開始する。
         for (const coord of matchedCoords) {
             const cell = this.boardElement.querySelector(`.cell[data-row="${coord.row}"][data-col="${coord.col}"]`);
             const piece = this.getPiece(cell);
@@ -94,21 +94,21 @@ export class ViewManager {
 
         if (piecesToRemove.length === 0) return;
 
-        // CSS transitionの時間(200ms)だけ待つ
+        // NOTE: アニメーション完了まで 200ms 待機する。
         await new Promise(resolve => setTimeout(resolve, 200));
 
-        // アニメーション完了後にDOMから削除
+        // NOTE: エフェクト終了後にピースを DOM から削除する。
         for (const piece of piecesToRemove) {
             piece.remove();
         }
     }
 
     /**
-     * ピースの落下と補充のアニメーション
+     * ピースの落下と補充のアニメーション。
      * @param {object} refillData 
      */
     async animateFallAndRefill(refillData) {
-        // 落下
+        // NOTE: 補充前にピースを落下させる。
         for (const move of refillData.fallMoves) {
             const fromCell = this.boardElement.querySelector(`.cell[data-row="${move.from.row}"][data-col="${move.from.col}"]`);
             const toCell = this.boardElement.querySelector(`.cell[data-row="${move.to.row}"][data-col="${move.to.col}"]`);
@@ -116,7 +116,7 @@ export class ViewManager {
             if (piece) toCell.appendChild(piece);
         }
 
-        // 補充
+        // NOTE: 空いたセルに新しいピースを追加する。
         for (const newPieceData of refillData.newPieces) {
             const cell = this.boardElement.querySelector(`.cell[data-row="${newPieceData.row}"][data-col="${newPieceData.col}"]`);
             if (cell) {
@@ -126,11 +126,11 @@ export class ViewManager {
                 cell.appendChild(newPiece);
             }
         }
-        await new Promise(resolve => setTimeout(resolve, 200)); // 0.2秒待つ
+        await new Promise(resolve => setTimeout(resolve, 200)); // NOTE: 補充演出の余韻として 0.2 秒待つ。
     }
 
     /**
-     * リザルト画面を表示し、指定秒数後にリダイレクトする
+     * リザルト画面を表示し、指定秒数後にリダイレクトする。
      * @param {string} message 
      */
     showResult(message) {

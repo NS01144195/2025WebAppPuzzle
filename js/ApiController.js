@@ -1,6 +1,6 @@
 export class ApiController {
     /**
-     * ピース交換のリクエストをサーバーに送信する
+     * ピース交換のリクエストをサーバーに送信する。
      * @param {number} r1 ピース1の行
      * @param {number} c1 ピース1の列
      * @param {number} r2 ピース2の行
@@ -27,8 +27,7 @@ export class ApiController {
             return await response.json();
         } catch (error) {
             console.error('API通信に失敗しました:', error);
-            // エラーが発生した場合も、フロントエンドが処理を継続できるよう
-            // 空のデータを返すなどのエラーハンドリングを行う
+            // NOTE: エラー時もフロントが継続できるよう空データを返す。
             return { status: 'error', chainSteps: [] };
         }
     }

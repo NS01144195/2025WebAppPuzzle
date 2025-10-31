@@ -1,6 +1,5 @@
 <?php
-// このファイルは SceneManager によって読み込まれる
-// ゲームシーン
+// INFO: SceneManager から読み込まれるゲームシーンのテンプレート。
 ?>
 <?php
 /**
@@ -14,12 +13,12 @@
 <div id="game-screen" class="scene-view screen active">
     <div id="puzzle-board">
         <?php
-        // 盤面データが渡されているかチェック
+        // INFO: 盤面データがセットされているか判定する。
         if (!empty($board)) {
             $boardSize = count($board);
             for ($row = 0; $row < $boardSize; $row++) {
                 for ($col = 0; $col < $boardSize; $col++) {
-                    // htmlspecialcharsで安全に色を出力
+                    // NOTE: 色コードは XSS 対策のため htmlspecialchars を通す。
                     $color = htmlspecialchars($board[$row][$col]);
 
                     echo '<div class="cell" data-row="' . $row . '" data-col="' . $col . '">';
@@ -28,7 +27,7 @@
                 }
             }
         } else {
-            // 盤面データがない場合のエラー表示
+            // NOTE: データ不足時はユーザーにエラーを知らせる。
             echo '<div style="color: white; padding: 20px;">盤面データがありません。</div>';
         }
         ?>

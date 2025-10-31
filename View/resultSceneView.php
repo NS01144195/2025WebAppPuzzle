@@ -1,6 +1,5 @@
 <?php
-// このファイルは SceneManager によって読み込まれる
-// リザルトシーン
+// INFO: SceneManager から読み込まれるリザルトシーンのテンプレート。
 ?>
 <?php
 /**
@@ -12,7 +11,7 @@
 ?>
 <div id="result-screen" class="scene-view screen active">
     
-    <?php // データが渡されている場合のみ表示 ?>
+    <?php // INFO: 必要なデータがある場合のみ結果を描画する。 ?>
     <?php if (isset($resultText)): ?>
         <h1><?= htmlspecialchars($resultText) ?></h1>
         <?php if (isset($isNewHighScore) && $isNewHighScore): ?>

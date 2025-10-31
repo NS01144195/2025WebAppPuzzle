@@ -10,31 +10,34 @@ class GameController
     private Board $board;
     private MatchFinder $matchFinder;
 
+    /**
+     * 難易度に応じたゲーム管理オブジェクトを初期化する。
+     */
     public function __construct(string $difficulty = 'normal')
     {
-        $this->gameState = new GameState($difficulty); // ← 難易度を渡す
+        $this->gameState = new GameState($difficulty);
         $this->board = new Board();
         $this->matchFinder = new MatchFinder();
     }
 
     /**
-     * ゲーム画面の準備を行う
+     * ゲーム画面の準備を行う。
      */
     public function prepareGame(): void
     {
         if (!isset($_SESSION['board'])) {
-            // セッションになければ、Boardに初期化を指示
+            // NOTE: 新規ゲームでは盤面を初期化してから保存する。
             $this->board->initialize();
-            // GameStateは最初から初期状態なので、そのまま保存
+            // INFO: 初期状態のスコアと手数をセッションに保持する。
             $this->saveStateToSession();
         } else {
-            // セッションにあれば、それをロード
+            // INFO: 続きから再開する際はセッションデータを反映する。
             $this->loadStateFromSession();
         }
     }
 
     /**
-     * プレイヤーのアクションを処理し、結果を返す
+     * プレイヤーのアクションを処理し、結果を返す。
      * @param string $action 実行するアクション名
      * @param array $data アクションに必要なデータ
      * @return array フロントエンドに返すレスポンスデータ
@@ -52,7 +55,7 @@ class GameController
     }
 
     /**
-     * ピース交換から連鎖までの処理を実行する
+     * ピース交換から連鎖までの処理を実行する。
      * @param int $r1 交換するピース1の行
      * @param int $c1 交換するピース1の列
      * @param int $r2 交換するピース2の行
@@ -61,72 +64,72 @@ class GameController
      */
     private function processSwap(int $r1, int $c1, int $r2, int $c2): array
     {
-        // ピースを交換してみる
+        // NOTE: まずは見た目通りにピースを入れ替えてマッチを確認する。
         $this->board->swapPieces($r1, $c1, $r2, $c2);
 
-        // MatchFinderにマッチがあるか確認してもらう
+        // INFO: 交換後の盤面にマッチが存在するか走査する。
         $matchedCoords = $this->matchFinder->find($this->board);
 
-        // マッチがなければ元に戻して終了
+        // NOTE: マッチがなければ盤面を即座に元に戻す。
         if (empty($matchedCoords)) {
-            $this->board->swapPieces($r1, $c1, $r2, $c2); // Swap back
+            $this->board->swapPieces($r1, $c1, $r2, $c2); // NOTE: マッチしなかったため盤面を元に戻す。
             return ['status' => 'success', 'chainSteps' => []];
         }
 
-        // マッチがあれば、連鎖処理を開始
-        $this->gameState->useMove(); // 最初に1手消費
+        // NOTE: マッチ成立時は連鎖処理と手数消費を開始する。
+        $this->gameState->useMove();
         $chainSteps = [];
         $comboCount = 0;
 
         while (!empty($matchedCoords)) {
             $comboCount++;
-            
-            // スコアを加算
+
+            // INFO: 消えたピース分のスコアを反映する。
             $this->gameState->addScoreForPieces(count($matchedCoords));
 
-            // ピースを削除し、新しいピースを補充
+            // NOTE: 盤面からピースを消し、重力と補充を適用する。
             $this->board->removePieces($matchedCoords);
             $refillData = $this->board->refill();
-            
-            // フロント用のアニメーション情報を記録
+
+            // INFO: フロントエンドがアニメーションできるよう結果を保存する。
             $chainSteps[] = [
                 'matchedCoords' => $matchedCoords,
                 'refillData' => $refillData
             ];
 
-            // 補充後に新たなマッチがあるか再度確認
+            // INFO: 連鎖が続くか確認するため再度マッチ探索する。
             $matchedCoords = $this->matchFinder->find($this->board);
         }
 
-        // コンボボーナスを加算
+        // INFO: 連鎖数に応じたボーナスを追加する。
         if ($comboCount > 1) {
             $this->gameState->addComboBonus($comboCount);
         }
 
-        // 最終的なゲーム状態をセッションに保存
+        // INFO: 最新の盤面とスコア情報をセッションに残す。
         $this->saveStateToSession();
 
-        // フロントに返すレスポンスを作成
+        // INFO: フロントへ返却するゲーム状態をまとめる。
         $gameStatus = $this->gameState->getStatus();
 
-        // isNewHighScoreフラグを初期化
+        // INFO: ハイスコア更新フラグを初期化する。
         $isNewHighScore = false;
 
-        // ゲームが終了したかチェック
+        // NOTE: クリア・ゲームオーバー時はハイスコアを検証する。
         if ($gameStatus === GameStatus::CLEAR || $gameStatus === GameStatus::OVER) {
-            // 現在のハイスコアをCookieから読み込む (なければ0)
+            // INFO: Cookie から既存ハイスコアを取得する。
             $highScore = $_COOKIE['highscore'] ?? 0;
             $currentScore = $this->gameState->getScore();
 
-            // 今回のスコアがハイスコアを上回っていたら更新
+            // NOTE: スコアが上回った場合は Cookie を上書きする。
             if ($currentScore > $highScore) {
-                // Cookieに新しいハイスコアを保存
+                // NOTE: Cookie の有効期限を1年に設定して保持する。
                 setcookie('highscore', $currentScore, time() + (365 * 24 * 60 * 60), "/");
-                $isNewHighScore = true; // ハイスコアを更新したのでフラグを立てる
+                $isNewHighScore = true; // NOTE: ビュー側で演出できるようフラグを残す。
             }
         }
 
-        // ハイスコアを更新したかどうかの情報もセッションに保存
+        // INFO: ハイスコア更新時のみセッションにフラグを記録する。
         if ($isNewHighScore) {
             $_SESSION['isNewHighScore'] = true;
         }
@@ -136,12 +139,12 @@ class GameController
             'chainSteps' => $chainSteps,
             'score' => $this->gameState->getScore(),
             'movesLeft' => $this->gameState->getMovesLeft(),
-            'gameState' => $gameStatus->value // Enumの値を返す
+            'gameState' => $gameStatus->value // INFO: フロントで扱いやすいよう enum の値を渡す。
         ];
     }
 
     /**
-     * セッションからゲーム状態をロードする
+     * セッションからゲーム状態をロードする。
      */
     private function loadStateFromSession(): void
     {
@@ -153,7 +156,7 @@ class GameController
     }
 
     /**
-     * 現在のゲーム状態をセッションに保存する
+     * 現在のゲーム状態をセッションに保存する。
      */
     private function saveStateToSession(): void
     {
@@ -164,8 +167,8 @@ class GameController
     }
 
     /**
-     * Viewに渡すためのデータを返す
-     */
+     * Viewに渡すためのデータを返す。
+    */
     public function getViewData(): array
     {
         return [

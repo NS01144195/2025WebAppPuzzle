@@ -1,6 +1,5 @@
 <?php
-// このファイルは SceneManager によって読み込まれる
-// タイトルシーン
+// INFO: SceneManager から読み込まれるタイトルシーンのテンプレート。
 ?>
 <div id="title-screen" class="scene-view screen active">
     <h1>3 MATCH PUZZLE</h1>
@@ -15,18 +14,18 @@
     </form>
     <script>
         function checkDebugPassword() {
-            // JavaScriptのpromptでパスワード入力を求める
+            // INFO: prompt でパスワードを受け取り、デバッグ機能を制御する。
             const input = prompt("デバッグ用のパスワードを入力してください:");
             const correctPassword = "debug";
 
             if (input === correctPassword) {
-                // 正しければ隠しフィールドにパスワードをセットしてフォームを送信
+                // NOTE: 正しい場合はフォームに値を設定して送信する。
                 document.getElementById('debug-password-input').value = input;
-                return true; // trueを返すとフォームが送信される
+                return true; // INFO: true を返すとフォーム送信が継続する。
             } else {
-                // 間違っていれば警告を出し、フォームの送信をキャンセル
+                // NOTE: 間違った場合は警告して送信を止める。
                 alert("パスワードが違います。");
-                return false; // falseを返すと送信がキャンセルされる
+                return false; // INFO: false を返すと送信がキャンセルされる。
             }
         }
     </script>

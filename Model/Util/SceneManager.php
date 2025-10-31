@@ -3,15 +3,17 @@ class SceneManager
 {
     private string $currentScene;
 
+    /**
+     * セッションから現在のシーンを読み込み、リクエストを即時処理する。
+     */
     public function __construct()
     {
-        // セッションにシーン情報がなければ 'title' を初期値とする
         $this->currentScene = $_SESSION['current_scene'] ?? 'title';
         $this->handleRequest();
     }
 
     /**
-     * POSTリクエストを処理してシーンを切り替える
+     * POSTリクエストを処理してシーンを切り替える。
      */
     private function handleRequest(): void
     {
@@ -28,7 +30,7 @@ class SceneManager
                 $submittedPassword = $_POST['password'] ?? '';
 
                 if ($submittedPassword === $correctPassword) {
-                    // パスワードが正しい場合のみCookieを削除
+                    // NOTE: 正しいパスワード入力時のみハイスコア Cookie を消去する。
                     setcookie('highscore', '', time() - 3600, "/");
                 }
                 $newScene = 'title';
@@ -41,7 +43,7 @@ class SceneManager
                 if (isset($_POST['difficulty'])) {
                     $_SESSION['difficulty'] = $_POST['difficulty'];
                 }
-                // ゲーム開始時にセッションデータをリセット
+                // NOTE: 新しいゲーム開始時は前回の状態を破棄する。
                 unset($_SESSION['board'], $_SESSION['score'], $_SESSION['movesLeft'], $_SESSION['gameState']);
                 break;
             case 'titleScene':
@@ -54,14 +56,14 @@ class SceneManager
 
         if ($newScene) {
             $_SESSION['current_scene'] = $newScene;
-            // POSTの再送信を防ぐためにリダイレクト
+            // NOTE: F5での再送信を防ぐためにリダイレクトする。
             header('Location: index.php');
             exit;
         }
     }
 
     /**
-     * 現在のシーン名を返す
+     * 現在のシーン名を返す。
      * @return string
      */
     public function getCurrentScene(): string
@@ -70,7 +72,7 @@ class SceneManager
     }
 
     /**
-     * 現在のシーンに対応するビューファイルのパスを返す
+     * 現在のシーンに対応するビューファイルのパスを返す。
      * @return string
      */
     public function getSceneViewFile(): string

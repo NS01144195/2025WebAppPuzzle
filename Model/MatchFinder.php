@@ -2,7 +2,7 @@
 class MatchFinder
 {
     /**
-     * 盤面を受け取り、全てのマッチを検出して座標リストを返す
+     * 盤面を受け取り、全てのマッチを検出して座標リストを返す。
      * @param Board $board
      * @return array
      */
@@ -11,8 +11,8 @@ class MatchFinder
         $size = $board->getSize();
         $grid = $board->getGrid();
         $matchBoard = array_fill(0, $size, array_fill(0, $size, false));
-        
-        // 水平方向のスキャン
+
+        // INFO: 横方向に3連続しているピースを検出する。
         for ($r = 0; $r < $size; $r++) {
             for ($c = 0; $c < $size - 2; $c++) {
                 if ($grid[$r][$c] && $grid[$r][$c] === $grid[$r][$c+1] && $grid[$r][$c] === $grid[$r][$c+2]) {
@@ -21,7 +21,7 @@ class MatchFinder
             }
         }
 
-        // 垂直方向のスキャン
+        // INFO: 縦方向に3連続しているピースを検出する。
         for ($c = 0; $c < $size; $c++) {
             for ($r = 0; $r < $size - 2; $r++) {
                 if ($grid[$r][$c] && $grid[$r][$c] === $grid[$r+1][$c] && $grid[$r][$c] === $grid[$r+2][$c]) {

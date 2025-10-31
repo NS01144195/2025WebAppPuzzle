@@ -2,21 +2,21 @@ import { ApiController } from './ApiController.js';
 import { ViewManager } from './ViewManager.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    
+
     const boardElement = document.getElementById('puzzle-board');
     if (!boardElement) return;
 
     const api = new ApiController();
     const view = new ViewManager();
-    
+
     let selectedCell = null;
-     // アニメーション中の操作をブロックするフラグ
+    // INFO: アニメーション中の操作をブロックするフラグ。
     let isAnimating = false;
 
     /**
-     * 2つのセルが隣接しているか判定する
-     * @param {HTMLElement} cell1 
-     * @param {HTMLElement} cell2 
+     * 2つのセルが隣接しているか判定する。
+     * @param {HTMLElement} cell1
+     * @param {HTMLElement} cell2
      * @returns {boolean}
      */
     const isAdjacent = (cell1, cell2) => {
@@ -27,35 +27,35 @@ document.addEventListener('DOMContentLoaded', () => {
         return Math.abs(r1 - r2) + Math.abs(c1 - c2) === 1;
     };
 
-    // イベントリスナー
+    // INFO: クリック操作を受け付けるイベントリスナー。
     boardElement.addEventListener('click', async (event) => {
-        if (isAnimating) return; // アニメーション中は操作不可
+        if (isAnimating) return; // NOTE: アニメーション中は入力を無効化する。
 
         const clickedCell = event.target.closest('.cell');
         if (!clickedCell || !view.getPiece(clickedCell)) {
-            // セルやピース以外がクリックされたら選択解除
-            if(selectedCell) view.deselectPiece(view.getPiece(selectedCell));
+            // NOTE: セル外をクリックした場合は選択状態を解除する。
+            if (selectedCell) view.deselectPiece(view.getPiece(selectedCell));
             selectedCell = null;
             return;
         }
 
         if (!selectedCell) {
-            // ピースの初回選択
+            // INFO: 1つ目のピースを選択状態にする。
             selectedCell = clickedCell;
             view.selectPiece(view.getPiece(selectedCell));
         } else {
-            // 2つ目のピース選択
+            // INFO: 2つ目のピースを選択して入れ替え処理を開始する。
             const piece1 = view.getPiece(selectedCell);
-            view.deselectPiece(piece1); // 最初のピースの選択表示を解除
+            view.deselectPiece(piece1); // NOTE: 先に選択表示をリセットする。
 
             if (selectedCell === clickedCell) {
-                // 同じピースをクリックしたら選択解除
+                // NOTE: 同じピースが選択された場合は処理を中断する。
                 selectedCell = null;
                 return;
-            }   
+            }
 
             if (!isAdjacent(selectedCell, clickedCell)) {
-                // 隣接していない場合は選択解除
+                // NOTE: 隣接していない場合は選択を解除して終了する。
                 console.log("隣接していません。選択をリセットします。");
                 selectedCell = null;
                 return;
@@ -68,18 +68,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const r2 = parseInt(clickedCell.dataset.row);
             const c2 = parseInt(clickedCell.dataset.col);
             
-            // 見た目の交換アニメーション
+            // NOTE: 見た目の入れ替えアニメーションを先に実施する。
             await view.animateSwap(piece1, view.getPiece(clickedCell));
 
-            // APIにリクエストを送信
+            // INFO: API に交換リクエストを送信する。
             const result = await api.swapPieces(r1, c1, r2, c2);
 
-            // 結果に応じて連鎖アニメーションを再生
+            // INFO: サーバー結果に応じてアニメーションを分岐する。
             if (result.status === 'success' && result.chainSteps.length > 0) {
                 for (const step of result.chainSteps) {
                     await view.animateRemove(step.matchedCoords);
 
-                    // ピースが消えた後、次のピースが落ちてくるまでに少しだけ待つ
+                    // NOTE: 落下演出が自然になるよう短い待機を挟む。
                     await new Promise(resolve => setTimeout(resolve, 50));
 
                     await view.animateFallAndRefill(step.refillData);
@@ -87,18 +87,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 view.updateScore(result.score);
                 view.updateMoves(result.movesLeft);
 
-                // ゲーム状態をチェック
-                if (result.gameState === 2) { // CLEAR
+                // INFO: ゲーム状態を判定して必要なら結果を表示する。
+                if (result.gameState === 2) { // NOTE: CLEAR 状態。
                     view.showResult("ゲームクリア！");
-                } else if (result.gameState === 3) { // OVER
+                } else if (result.gameState === 3) { // NOTE: OVER 状態。
                     view.showResult("ゲームオーバー…");
                 }
 
             } else {
-                // マッチしなかった場合は元に戻すアニメーション
+                // NOTE: マッチしない場合は元の配置に戻す。
                 await view.animateSwap(view.getPiece(selectedCell), view.getPiece(clickedCell));
             }
-            
+
             selectedCell = null;
             isAnimating = false;
         }
