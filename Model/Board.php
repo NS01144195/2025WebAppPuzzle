@@ -40,14 +40,6 @@ class Board
     }
 
     /**
-     * 指定座標のピースを取得する。
-     */
-    public function getPiece(int $r, int $c): ?string
-    {
-        return $this->grid[$r][$c] ?? null;
-    }
-
-    /**
      * マッチが発生しないように盤面を初期化する。
      */
     public function initialize(): void
