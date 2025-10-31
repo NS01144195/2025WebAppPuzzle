@@ -1,9 +1,10 @@
-/* ===== titleScene ===== */
+/* ===== タイトル: メインタイトルの表示設定 ===== */
 #title-screen h1 {
     font-size: 64px;
     margin-bottom: 40px;
 }
 
+/* ===== スタートボタン: ゲーム開始ボタンの基本スタイル設定 ===== */
 #title-screen button {
     font-size: 28px;
     padding: 16px 60px;
@@ -15,6 +16,7 @@
     transition: 0.2s;
 }
 
+/* ===== ボタンホバー: スタートボタンのホバーエフェクト設定 ===== */
 #title-screen button:hover {
     background: #7cf;
 }

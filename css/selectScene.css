@@ -1,8 +1,10 @@
+/* ===== 見出し: ステージ選択画面のタイトル設定 ===== */
 #select-screen h1 {
     font-size: 56px;
     margin-bottom: 50px;
 }
 
+/* ===== スコア表示: ハイスコアの表示スタイル設定 ===== */
 .highscore {
     font-size: 28px;
     color: #ffd700; /* ゴールド */
@@ -10,11 +12,13 @@
     text-shadow: 1px 1px 2px black;
 }
 
+/* ===== ボタングループ: ステージ選択ボタンのレイアウト設定 ===== */
 .stage-buttons {
     display: flex;
     gap: 20px; /* ボタン間のスペース */
 }
 
+/* ===== ステージボタン: 難易度選択ボタンの基本スタイル設定 ===== */
 .stage-button {
     font-size: 24px;
     padding: 15px 40px;
@@ -25,11 +29,12 @@
     transition: transform 0.2s;
 }
 
+/* ===== ボタンホバー: ステージボタンのホバーエフェクト設定 ===== */
 .stage-button:hover {
     transform: scale(1.05);
 }
 
-/* 各難易度の色設定 */
+/* ===== 難易度カラー: 各難易度レベルを示す色分け設定 ===== */
 .stage-button.tutorial { background-color: #1e90ff; } /* ドジャーブルー */
 .stage-button.easy { background-color: #3cb371; } /* ミディアムシーグリーン */
 .stage-button.normal { background-color: #ffa500; } /* オレンジ */

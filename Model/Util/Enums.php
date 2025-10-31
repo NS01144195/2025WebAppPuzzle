@@ -4,11 +4,11 @@
  */
 enum PieceColor: string
 {
-    case Red = 'red';
-    case Blue = 'blue';
-    case Green = 'green';
-    case Yellow = 'yellow';
-    case Purple = 'purple';
+    case Red = '#E74C3C';     // フラットな赤
+    case Blue = '#3498DB';    // フラットな青
+    case Green = '#2ECC71';   // フラットな緑
+    case Yellow = '#F1C40F';  // フラットな黄色
+    case Purple = '#9B59B6';  // フラットな紫
 
     /**
      * ランダムな色を返す静的メソッド

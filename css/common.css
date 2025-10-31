@@ -1,4 +1,4 @@
-/* ===== 全体・コンテナ ===== */
+/* ===== ベース設定: ページ全体のレイアウトと背景設定 ===== */
 body {
     background-color: #1b1b1b;
     color: #fff;
@@ -10,6 +10,7 @@ body {
     margin: 0;
 }
 
+/* ===== ゲームコンテナ: メインゲームエリアの表示枠設定 ===== */
 #game-container {
     width: 1280px;
     height: 720px;
@@ -22,7 +23,7 @@ body {
     position: relative;
 }
 
-/* ===== 共通の画面設定 ===== */
+/* ===== 画面共通: 各シーンの基本レイアウト設定 ===== */
 .screen {
     display: none; /* 基本は非表示 */
     width: 100%;
@@ -32,12 +33,12 @@ body {
     flex-direction: column;
 }
 
-/* 表示するスクリーンにだけこのクラスを付ける */
+/* ===== アクティブ画面: 現在表示中の画面の表示設定 ===== */
 .screen.active {
     display: flex;
 }
 
-/* ===== 共通ボタン (タイトルへ戻る) ===== */
+/* ===== ナビゲーション: タイトルへ戻るボタンの配置設定 ===== */
 #title-return-form {
     position: absolute;
     top: 20px;
@@ -47,6 +48,7 @@ body {
     z-index: 100;
 }
 
+/* ===== タイトルボタン: ホーム画面へ戻るためのボタンスタイル ===== */
 #to-title-button {
     font-size: 16px;
     padding: 8px 15px;
@@ -59,6 +61,7 @@ body {
     transition: 0.2s;
 }
 
+/* ===== ボタンホバー: タイトルボタンのホバー時の視覚的フィードバック ===== */
 #to-title-button:hover {
     background: rgb(43, 138, 221);
 }

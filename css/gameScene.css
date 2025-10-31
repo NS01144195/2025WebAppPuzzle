@@ -1,4 +1,4 @@
-/* ===== gameScene ===== */
+/* ===== ゲーム画面: メインゲームエリアのレイアウト設定 ===== */
 #game-screen {
     position: relative;
     background: #333;
@@ -6,93 +6,154 @@
     box-sizing: border-box;
 }
 
-/* 右上のUI */
+/* ===== ステータスUI: スコアと時間表示のための右上UI設定 ===== */
 #game-screen #right-ui {
     position: absolute;
     top: 20px;
     right: 20px;
-    background-color: #fff;
-    color: #333;
+    background-color: #34495e;
+    color: #ecf0f1;
     font-size: 16px;
     text-align: right;
     z-index: 100;
+    padding: 10px 15px;
+    border-radius: 4px;
+    min-width: 120px;
 }
 
-/* リザルトオーバーレイ */
+/* ===== リザルト表示: ゲーム結果表示用のオーバーレイ設定 ===== */
 #game-screen #result-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(0,0,0,0.5);
+    background-color: rgba(44, 62, 80, 0.92);
     display: none;
     justify-content: center;
     align-items: center;
     z-index: 1000;
+    backdrop-filter: blur(3px);
+    animation: fadeIn 0.5s ease-out;
 }
 
+/* ===== リザルトメッセージ: ゲーム結果のテキスト表示設定 ===== */
 #result-overlay #result-message {
-    color: white;
-    font-size: 36px;
-    padding: 20px 40px;
-    background-color: rgba(0,0,0,0.7);
-    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-width: 300px;
+    color: #ecf0f1;
+    font-size: 42px;
+    padding: 40px 60px;
+    background-color: #34495e;
+    border-radius: 4px;
     text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05);
+    transform: translateY(20px);
+    animation: slideUp 0.5s ease-out forwards;
 }
 
-/* パズルボード */
+/* ===== クリアスコア: スコア表示のスタイル設定 ===== */
+#result-overlay #result-message .score {
+    font-size: 32px;
+    color: #2ecc71;
+    margin-top: 10px;
+}
+
+/* ===== クリアタイム: 経過時間表示のスタイル設定 ===== */
+#result-overlay #result-message .time {
+    font-size: 24px;
+    color: #3498db;
+    margin-top: 5px;
+}
+
+/* ===== アニメーション: フェードイン効果 ===== */
+@keyframes fadeIn {
+    from {
+        background-color: rgba(44, 62, 80, 0);
+        backdrop-filter: blur(0px);
+    }
+    to {
+        background-color: rgba(44, 62, 80, 0.92);
+        backdrop-filter: blur(3px);
+    }
+}
+
+/* ===== アニメーション: スライドアップ効果 ===== */
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== ゲームボード: パズルピース配置エリアの基本設定 ===== */
 #game-screen #puzzle-board {
     width: 600px;
     height:600px;
     display: grid;
     grid-template-columns: repeat(9, 1fr);
     grid-template-rows: repeat(9, 1fr);
-    border: 4px solid #fff;
-    border-radius: 8px;
+    border: 2px solid #34495e;
+    border-radius: 4px;
     overflow: hidden;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
-    background-color: #555;
+    background-color: #2c3e50;
     z-index: 5;
+    padding: 1px;
 }
 
+/* ===== ゲームセル: パズルピースを配置するマス目の設定 ===== */
 #game-screen #puzzle-board .cell {
-    border: 1px solid #777;
+    border: 1px solid #34495e;
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #383838;
+    background-color: #2c3e50;
     cursor: pointer;
+    transition: background-color 0.2s ease;
 }
 
-/* ピースのスタイルとアニメーション */
+/* ===== パズルピース: 個々のピースの基本スタイル設定 ===== */
 #game-screen #puzzle-board .piece {
     width: 90%;
     height: 90%;
     border-radius: 50%;
     box-sizing: border-box;
-    transition: transform 0.15s ease-out, box-shadow 0.15s ease-out, border 0.15s ease-out;
+    transition: all 0.2s ease-out;
     z-index: 10;
+    border: 2px solid rgba(255, 255, 255, 0.1);
 }
 
+/* ===== ピースホバー: マウスオーバー時のピースの視覚的フィードバック ===== */
 #game-screen #puzzle-board .piece:hover {
     transform: scale(1.05);
-    border: 4px solid #f9f7f0;
+    opacity: 0.9;
     cursor: pointer;
 }
 
+/* ===== ピース選択: 選択されたピースの視覚的フィードバック ===== */
 #game-screen #puzzle-board .piece.selected {
     transform: scale(0.95);
-    border: 4px solid #f9f7f0;
+    border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
+/* ===== 新規ピース: 新しく追加されるピースのアニメーション設定 ===== */
 #game-screen #puzzle-board .piece.new {
     transform: translateY(-200%);
     opacity: 0;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.7);
 }
 
+/* ===== ピース消滅: マッチしたピースの消滅アニメーション設定 ===== */
 #game-screen #puzzle-board .piece.disappearing {
     transform: scale(0);
     opacity: 0;
-    transition: transform 0.2s ease-in, opacity 0.2s ease-out;
+    transition: all 0.3s ease-out;
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.8);
 }
