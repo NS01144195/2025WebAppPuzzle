@@ -6,6 +6,12 @@ require_once 'MatchFinder.php';
 
 class GameController
 {
+    private const SESSION_BOARD_KEY = 'board';
+    private const SESSION_SCORE_KEY = 'score';
+    private const SESSION_MOVES_KEY = 'movesLeft';
+    private const SESSION_STATE_KEY = 'gameState';
+    private const SESSION_HIGHSCORE_FLAG = 'isNewHighScore';
+
     private GameState $gameState;
     private Board $board;
     private MatchFinder $matchFinder;
@@ -25,7 +31,7 @@ class GameController
      */
     public function prepareGame(): void
     {
-        if (!isset($_SESSION['board'])) {
+        if (!isset($_SESSION[self::SESSION_BOARD_KEY])) {
             // NOTE: 新規ゲームでは盤面を初期化してから保存する。
             $this->board->initialize();
             // INFO: 初期状態のスコアと手数をセッションに保持する。
@@ -46,12 +52,15 @@ class GameController
     {
         $this->loadStateFromSession();
 
-        switch ($action) {
-            case 'swapPieces':
-                return $this->processSwap($data['r1'], $data['c1'], $data['r2'], $data['c2']);
-            default:
-                return ['status' => 'error', 'message' => '不明なアクションです。'];
+        if ($action === 'swapPieces') {
+            if (!$this->isValidSwapRequest($data)) {
+                return ['status' => 'error', 'message' => '不正な座標が指定されました。'];
+            }
+
+            return $this->processSwap((int)$data['r1'], (int)$data['c1'], (int)$data['r2'], (int)$data['c2']);
         }
+
+        return ['status' => 'error', 'message' => '不明なアクションです。'];
     }
 
     /**
@@ -131,7 +140,7 @@ class GameController
 
         // INFO: ハイスコア更新時のみセッションにフラグを記録する。
         if ($isNewHighScore) {
-            $_SESSION['isNewHighScore'] = true;
+            $_SESSION[self::SESSION_HIGHSCORE_FLAG] = true;
         }
 
         return [
@@ -148,10 +157,10 @@ class GameController
      */
     private function loadStateFromSession(): void
     {
-        if (isset($_SESSION['board'])) {
-            $this->board->setGrid($_SESSION['board']);
-            $this->gameState->setScore($_SESSION['score'] ?? 0);
-            $this->gameState->setMovesLeft($_SESSION['movesLeft'] ?? 0);
+        if (isset($_SESSION[self::SESSION_BOARD_KEY])) {
+            $this->board->setGrid($_SESSION[self::SESSION_BOARD_KEY]);
+            $this->gameState->setScore($_SESSION[self::SESSION_SCORE_KEY] ?? 0);
+            $this->gameState->setMovesLeft($_SESSION[self::SESSION_MOVES_KEY] ?? 0);
         }
     }
 
@@ -160,10 +169,10 @@ class GameController
      */
     private function saveStateToSession(): void
     {
-        $_SESSION['board'] = $this->board->getGrid();
-        $_SESSION['score'] = $this->gameState->getScore();
-        $_SESSION['movesLeft'] = $this->gameState->getMovesLeft();
-        $_SESSION['gameState'] = $this->gameState->getStatus()->value;
+        $_SESSION[self::SESSION_BOARD_KEY] = $this->board->getGrid();
+        $_SESSION[self::SESSION_SCORE_KEY] = $this->gameState->getScore();
+        $_SESSION[self::SESSION_MOVES_KEY] = $this->gameState->getMovesLeft();
+        $_SESSION[self::SESSION_STATE_KEY] = $this->gameState->getStatus()->value;
     }
 
     /**
@@ -177,5 +186,19 @@ class GameController
             'movesLeft'    => $this->gameState->getMovesLeft(),
             'targetScore'  => $this->gameState->getTargetScore(),
         ];
+    }
+
+    /**
+     * swapPieces リクエストの入力値を検証する。
+     */
+    private function isValidSwapRequest(array $data): bool
+    {
+        foreach (['r1', 'c1', 'r2', 'c2'] as $key) {
+            if (!isset($data[$key]) || !is_numeric($data[$key])) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

@@ -9,8 +9,8 @@ require_once 'Model/GameController.php';
 $json_data = file_get_contents('php://input');
 $data = json_decode($json_data, true);
 
-// INFO: アクション指定が無い場合はバリデーションエラーとする。
-if (!isset($data['action']) || !$data) {
+// INFO: 不正な JSON やアクション指定なしの場合はバリデーションエラーとする。
+if (!is_array($data) || json_last_error() !== JSON_ERROR_NONE || empty($data['action'])) {
     http_response_code(400);
     echo json_encode(['status' => 'error', 'message' => '無効なリクエストです。']);
     exit;

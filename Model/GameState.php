@@ -2,43 +2,29 @@
 require_once 'Util/Enums.php';
 class GameState
 {
+    private const DEFAULT_DIFFICULTY = 'normal';
+    private const DIFFICULTY_SETTINGS = [
+        'tutorial' => ['targetScore' => 500, 'moves' => 99],
+        'easy'     => ['targetScore' => 1000, 'moves' => 30],
+        'normal'   => ['targetScore' => 1500, 'moves' => 20],
+        'hard'     => ['targetScore' => 2000, 'moves' => 15],
+    ];
+    private const PIECE_SCORE = 5;
+    private const COMBO_BONUS = 10;
+
     private int $score = 0;
     private int $movesLeft;
-
-    /**
-     * ルール関連のしきい値を保持する。
-     * デフォルト値は難易度により上書きされる。
-     */
-    private int $targetScore = 100;
-    private int $startMovesLeft = 20;
-    private int $pieceScore = 5;
-    private int $comboBonus = 10;
+    private int $targetScore;
 
     /**
      * 選択された難易度に応じて初期状態を構築する。
      */
-    public function __construct(string $difficulty = 'normal')
+    public function __construct(string $difficulty = self::DEFAULT_DIFFICULTY)
     {
-        switch ($difficulty) {
-            case 'tutorial':
-                $this->targetScore = 500;
-                $this->startMovesLeft = 99;
-                break;
-            case 'easy':
-                $this->targetScore = 1000;
-                $this->startMovesLeft = 30;
-                break;
-            case 'hard':
-                $this->targetScore = 2000;
-                $this->startMovesLeft = 15;
-                break;
-            case 'normal':
-            default:
-                $this->targetScore = 1500;
-                $this->startMovesLeft = 20;
-                break;
-        }
-        $this->movesLeft = $this->startMovesLeft;
+        $settings = self::DIFFICULTY_SETTINGS[$difficulty] ?? self::DIFFICULTY_SETTINGS[self::DEFAULT_DIFFICULTY];
+
+        $this->targetScore = $settings['targetScore'];
+        $this->movesLeft = $settings['moves'];
     }
 
     /**
@@ -101,7 +87,7 @@ class GameState
      */
     public function addScoreForPieces(int $pieceCount): void
     {
-        $this->score += $pieceCount * $this->pieceScore;
+        $this->score += $pieceCount * self::PIECE_SCORE;
     }
 
     /**
@@ -109,7 +95,7 @@ class GameState
      */
     public function addComboBonus(int $comboCount): void
     {
-        $this->score += $comboCount * $this->comboBonus;
+        $this->score += $comboCount * self::COMBO_BONUS;
     }
 
     /**

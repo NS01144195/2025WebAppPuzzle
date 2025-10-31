@@ -9,42 +9,44 @@ require_once 'Model/GameController.php';
 $sceneManager = new SceneManager();
 $view_file = $sceneManager->getSceneViewFile();
 $current_scene = $sceneManager->getCurrentScene();
+$viewData = [];
 
-// NOTE: ゲームシーンではプレイ用データを先に準備しておく。
-if ($current_scene === 'game') {
-    // INFO: セッションに保存された難易度を利用し、未設定なら normal を使う。
-    $difficulty = $_SESSION['difficulty'] ?? 'normal';
+switch ($current_scene) {
+    case 'game':
+        // INFO: セッションに保存された難易度を利用し、未設定なら normal を使う。
+        $difficulty = $_SESSION['difficulty'] ?? 'normal';
 
-    // INFO: 難易度に応じたゲーム状態をロードする。
-    $gameController = new GameController($difficulty);
-    $gameController->prepareGame();
-    $viewData = $gameController->getViewData();
-    
+        // INFO: 難易度に応じたゲーム状態をロードする。
+        $gameController = new GameController($difficulty);
+        $gameController->prepareGame();
+        $viewData = $gameController->getViewData();
+        break;
+
+    case 'result':
+        // INFO: ゲーム終了時に保存した結果を読み込む。
+        $gameState = $_SESSION['gameState'] ?? 0;
+        $finalScore = $_SESSION['score'] ?? 0;
+        $movesLeft = $_SESSION['movesLeft'] ?? 0;
+
+        // INFO: 状態に合わせて文言を切り替える。
+        $resultText = match ($gameState) {
+            2 => 'ゲームクリア！',
+            3 => 'ゲームオーバー…',
+            default => ''
+        };
+
+        $isNewHighScore = $_SESSION['isNewHighScore'] ?? false;
+        unset($_SESSION['isNewHighScore']); // NOTE: 再表示を防ぐためにフラグを破棄する。
+        break;
+
+    case 'select':
+        // INFO: ステージセレクトでは Cookie のハイスコアを参照する。
+        $highScore = $_COOKIE['highscore'] ?? 0;
+        break;
+}
+
+if (!empty($viewData)) {
     extract($viewData);
-}
-
-// NOTE: リザルトシーンでは結果表示用データを整える。
-if ($current_scene === 'result') {
-    // INFO: ゲーム終了時に保存した結果を読み込む。
-    $gameState = $_SESSION['gameState'] ?? 0;
-    $finalScore = $_SESSION['score'] ?? 0;
-    $movesLeft = $_SESSION['movesLeft'] ?? 0;
-
-    // INFO: 状態に合わせて文言を切り替える。
-    $resultText = '';
-    if ($gameState === 2) { // NOTE: GameStatus::CLEAR->value
-        $resultText = 'ゲームクリア！';
-    } elseif ($gameState === 3) { // NOTE: GameStatus::OVER->value
-        $resultText = 'ゲームオーバー…';
-    }
-
-    $isNewHighScore = $_SESSION['isNewHighScore'] ?? false;
-    unset($_SESSION['isNewHighScore']); // NOTE: 再表示を防ぐためにフラグを破棄する。
-}
-
-// INFO: ステージセレクトでは Cookie のハイスコアを参照する。
-if ($current_scene === 'select') {
-    $highScore = $_COOKIE['highscore'] ?? 0;
 }
 
 ?>
