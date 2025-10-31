@@ -8,7 +8,8 @@ class SceneManager
      */
     public function __construct()
     {
-        $this->currentScene = $_SESSION['current_scene'] ?? 'title';
+        require_once 'SessionKeys.php';
+        $this->currentScene = $_SESSION[SessionKeys::CURRENT_SCENE] ?? 'title';
         $this->handleRequest();
     }
 
@@ -55,7 +56,7 @@ class SceneManager
         }
 
         if ($newScene) {
-            $_SESSION['current_scene'] = $newScene;
+            $_SESSION[SessionKeys::CURRENT_SCENE] = $newScene;
             // NOTE: F5での再送信を防ぐためにリダイレクトする。
             header('Location: index.php');
             exit;

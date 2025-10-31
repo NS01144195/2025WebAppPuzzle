@@ -35,7 +35,7 @@
 }
 
 /* ===== 難易度カラー: 各難易度レベルを示す色分け設定 ===== */
-.stage-button.tutorial { background-color: #1e90ff; } /* ドジャーブルー */
-.stage-button.easy { background-color: #3cb371; } /* ミディアムシーグリーン */
-.stage-button.normal { background-color: #ffa500; } /* オレンジ */
-.stage-button.hard { background-color: #dc143c; } /* クリムゾン */
+.stage-button.tutorial { background-color: #1e90ff; }
+.stage-button.easy { background-color: #3cb371; }
+.stage-button.normal { background-color: #ffa500; }
+.stage-button.hard { background-color: #dc143c; }

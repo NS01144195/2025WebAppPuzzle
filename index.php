@@ -8,10 +8,15 @@ require_once 'Model/GameController.php';
 // INFO: 現在のシーン情報を取得して表示内容を切り替える。
 $sceneManager = new SceneManager();
 $view_file = $sceneManager->getSceneViewFile();
-$current_scene = $sceneManager->getCurrentScene();
+$currentScene = $sceneManager->getCurrentScene();
 $viewData = [];
 
-switch ($current_scene) {
+switch ($currentScene) {
+    case 'select':
+        // INFO: ステージセレクトでは Cookie のハイスコアを参照する。
+        $highScore = $_COOKIE['highscore'] ?? 0;
+        break;
+
     case 'game':
         // INFO: セッションに保存された難易度を利用し、未設定なら normal を使う。
         $difficulty = $_SESSION['difficulty'] ?? 'normal';
@@ -38,11 +43,6 @@ switch ($current_scene) {
         $isNewHighScore = $_SESSION['isNewHighScore'] ?? false;
         unset($_SESSION['isNewHighScore']); // NOTE: 再表示を防ぐためにフラグを破棄する。
         break;
-
-    case 'select':
-        // INFO: ステージセレクトでは Cookie のハイスコアを参照する。
-        $highScore = $_COOKIE['highscore'] ?? 0;
-        break;
 }
 
 if (!empty($viewData)) {
@@ -60,9 +60,9 @@ if (!empty($viewData)) {
     <link rel="stylesheet" href="css/common.css">
     <?php
     // INFO: シーンに合わせたスタイルを追加する。
-    $scene_css_file = 'css/' . $current_scene . 'Scene.css';
-    if (file_exists($scene_css_file)) {
-        echo '<link rel="stylesheet" href="' . $scene_css_file . '">';
+    $sceneCssFile = 'css/' . $currentScene . 'Scene.css';
+    if (file_exists($sceneCssFile)) {
+        echo '<link rel="stylesheet" href="' . $sceneCssFile . '">';
     }
     ?>
     <script src="js/main.js" type="module" defer></script>
@@ -70,7 +70,7 @@ if (!empty($viewData)) {
 
 <body>
     <div id="game-container">
-        <?php if ($current_scene !== 'title'): ?>
+        <?php if ($currentScene !== 'title'): ?>
             <form method="POST" action="index.php" id="title-return-form">
                 <input type="hidden" name="action" value="titleScene">
                 <button id="to-title-button" type="submit">タイトルへ戻る</button>

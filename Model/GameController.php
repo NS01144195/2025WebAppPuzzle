@@ -1,16 +1,12 @@
 <?php
 require_once 'Util/Enums.php';
+require_once 'Util/SessionKeys.php';
 require_once 'GameState.php';
 require_once 'Board.php';
 require_once 'MatchFinder.php';
 
 class GameController
 {
-    private const SESSION_BOARD_KEY = 'board';
-    private const SESSION_SCORE_KEY = 'score';
-    private const SESSION_MOVES_KEY = 'movesLeft';
-    private const SESSION_STATE_KEY = 'gameState';
-    private const SESSION_HIGHSCORE_FLAG = 'isNewHighScore';
 
     private GameState $gameState;
     private Board $board;
@@ -31,7 +27,7 @@ class GameController
      */
     public function prepareGame(): void
     {
-        if (!isset($_SESSION[self::SESSION_BOARD_KEY])) {
+        if (!isset($_SESSION[SessionKeys::BOARD])) {
             // NOTE: 新規ゲームでは盤面を初期化してから保存する。
             $this->board->initialize();
             // INFO: 初期状態のスコアと手数をセッションに保持する。
@@ -140,7 +136,7 @@ class GameController
 
         // INFO: ハイスコア更新時のみセッションにフラグを記録する。
         if ($isNewHighScore) {
-            $_SESSION[self::SESSION_HIGHSCORE_FLAG] = true;
+            $_SESSION[SessionKeys::IS_NEW_HIGHSCORE] = true;
         }
 
         return [
@@ -157,10 +153,10 @@ class GameController
      */
     private function loadStateFromSession(): void
     {
-        if (isset($_SESSION[self::SESSION_BOARD_KEY])) {
-            $this->board->setGrid($_SESSION[self::SESSION_BOARD_KEY]);
-            $this->gameState->setScore($_SESSION[self::SESSION_SCORE_KEY] ?? 0);
-            $this->gameState->setMovesLeft($_SESSION[self::SESSION_MOVES_KEY] ?? 0);
+        if (isset($_SESSION[SessionKeys::BOARD])) {
+            $this->board->setGrid($_SESSION[SessionKeys::BOARD]);
+            $this->gameState->setScore($_SESSION[SessionKeys::SCORE] ?? 0);
+            $this->gameState->setMovesLeft($_SESSION[SessionKeys::MOVES_LEFT] ?? 0);
         }
     }
 
@@ -169,10 +165,10 @@ class GameController
      */
     private function saveStateToSession(): void
     {
-        $_SESSION[self::SESSION_BOARD_KEY] = $this->board->getGrid();
-        $_SESSION[self::SESSION_SCORE_KEY] = $this->gameState->getScore();
-        $_SESSION[self::SESSION_MOVES_KEY] = $this->gameState->getMovesLeft();
-        $_SESSION[self::SESSION_STATE_KEY] = $this->gameState->getStatus()->value;
+        $_SESSION[SessionKeys::BOARD] = $this->board->getGrid();
+        $_SESSION[SessionKeys::SCORE] = $this->gameState->getScore();
+        $_SESSION[SessionKeys::MOVES_LEFT] = $this->gameState->getMovesLeft();
+        $_SESSION[SessionKeys::GAME_STATE] = $this->gameState->getStatus()->value;
     }
 
     /**
