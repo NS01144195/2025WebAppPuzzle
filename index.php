@@ -13,7 +13,7 @@ $current_scene = $sceneManager->getCurrentScene();
 // ゲームシーンの場合、ゲームロジックの準備を行う
 if ($current_scene === 'game') {
     // POSTされた難易度を取得（なければ'normal'）
-    $difficulty = $_POST['difficulty'] ?? 'normal';
+    $difficulty = $_SESSION['difficulty'] ?? 'normal';
     
     // GameControllerに難易度を渡して生成
     $gameController = new GameController($difficulty);
@@ -37,6 +37,14 @@ if ($current_scene === 'result') {
     } elseif ($gameState === 3) { // GameStatus::OVER->value
         $resultText = 'ゲームオーバー…';
     }
+
+    $isNewHighScore = $_SESSION['isNewHighScore'] ?? false;
+    unset($_SESSION['isNewHighScore']); // 一度表示したら不要なので削除
+}
+
+// ステージセレクトシーンの場合、ハイスコアを読み込む
+if ($current_scene === 'select') {
+    $highScore = $_COOKIE['highscore'] ?? 0;
 }
 
 ?>

@@ -15,6 +15,9 @@
     <?php // データが渡されている場合のみ表示 ?>
     <?php if (isset($resultText)): ?>
         <h1><?= htmlspecialchars($resultText) ?></h1>
+        <?php if (isset($isNewHighScore) && $isNewHighScore): ?>
+            <h1 class="new-highscore">ハイスコア更新！</h1>
+        <?php endif; ?>
         <p>スコア: <?= htmlspecialchars($finalScore) ?></p>
         <p>残りライフ: <?= htmlspecialchars($movesLeft) ?></p>
     <?php endif; ?>

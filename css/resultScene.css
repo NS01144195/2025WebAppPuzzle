@@ -8,3 +8,18 @@
     font-size: 40px;
     margin-bottom: 10px;
 }
+
+.new-highscore {
+    font-size: 48px;
+    color: #ffd700; /* ゴールド */
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px black;
+    /* 点滅するようなアニメーション */
+    animation: blink-animation 1.5s infinite;
+}
+
+@keyframes blink-animation {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}

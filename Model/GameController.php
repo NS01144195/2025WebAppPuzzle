@@ -108,6 +108,29 @@ class GameController
 
         // フロントに返すレスポンスを作成
         $gameStatus = $this->gameState->getStatus();
+
+        // isNewHighScoreフラグを初期化
+        $isNewHighScore = false;
+
+        // ゲームが終了したかチェック
+        if ($gameStatus === GameStatus::CLEAR || $gameStatus === GameStatus::OVER) {
+            // 現在のハイスコアをCookieから読み込む (なければ0)
+            $highScore = $_COOKIE['highscore'] ?? 0;
+            $currentScore = $this->gameState->getScore();
+
+            // 今回のスコアがハイスコアを上回っていたら更新
+            if ($currentScore > $highScore) {
+                // Cookieに新しいハイスコアを保存
+                setcookie('highscore', $currentScore, time() + (365 * 24 * 60 * 60), "/");
+                $isNewHighScore = true; // ハイスコアを更新したのでフラグを立てる
+            }
+        }
+
+        // ハイスコアを更新したかどうかの情報もセッションに保存
+        if ($isNewHighScore) {
+            $_SESSION['isNewHighScore'] = true;
+        }
+
         return [
             'status' => 'success',
             'chainSteps' => $chainSteps,

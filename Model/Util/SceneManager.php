@@ -23,11 +23,24 @@ class SceneManager
         $newScene = null;
 
         switch ($action) {
+            case 'resetHighScore':
+                $correctPassword = "debug";
+                $submittedPassword = $_POST['password'] ?? '';
+
+                if ($submittedPassword === $correctPassword) {
+                    // パスワードが正しい場合のみCookieを削除
+                    setcookie('highscore', '', time() - 3600, "/");
+                }
+                $newScene = 'title';
+                break;
             case 'selectScene':
                 $newScene = 'select';
                 break;
             case 'gameScene':
                 $newScene = 'game';
+                if (isset($_POST['difficulty'])) {
+                    $_SESSION['difficulty'] = $_POST['difficulty'];
+                }
                 // ゲーム開始時にセッションデータをリセット
                 unset($_SESSION['board'], $_SESSION['score'], $_SESSION['movesLeft'], $_SESSION['gameState']);
                 break;
