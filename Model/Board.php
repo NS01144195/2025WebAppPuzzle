@@ -6,19 +6,49 @@ class Board
     private array $grid;
     private int $size;
 
+    /**
+     * 指定サイズの空盤面を生成する。
+     */
     public function __construct(int $size = 9)
     {
         $this->size = $size;
         $this->grid = array_fill(0, $size, array_fill(0, $size, null));
     }
 
-    public function getSize(): int { return $this->size; }
-    public function getGrid(): array { return $this->grid; }
-    public function setGrid(array $grid): void { $this->grid = $grid; }
-    public function getPiece(int $r, int $c): ?string { return $this->grid[$r][$c] ?? null; }
+    /**
+     * 盤面のサイズを返す。
+     */
+    public function getSize(): int
+    {
+        return $this->size;
+    }
 
     /**
-     * マッチが発生しないように盤面を初期化する
+     * 盤面全体の状態を返す。
+     */
+    public function getGrid(): array
+    {
+        return $this->grid;
+    }
+
+    /**
+     * 盤面全体を上書きする。
+     */
+    public function setGrid(array $grid): void
+    {
+        $this->grid = $grid;
+    }
+
+    /**
+     * 指定座標のピースを取得する。
+     */
+    public function getPiece(int $r, int $c): ?string
+    {
+        return $this->grid[$r][$c] ?? null;
+    }
+
+    /**
+     * マッチが発生しないように盤面を初期化する。
      */
     public function initialize(): void
     {
@@ -33,7 +63,7 @@ class Board
     }
     
     /**
-     * 初期配置でマッチが発生しているかチェックする
+     * 初期配置でマッチが発生しているかチェックする。
      */
     private function hasInitialMatch(int $r, int $c): bool
     {
@@ -44,7 +74,7 @@ class Board
     }
 
     /**
-     * 指定した2つのピースを交換する
+     * 指定した2つのピースを交換する。
      */
     public function swapPieces(int $r1, int $c1, int $r2, int $c2): void
     {
@@ -54,7 +84,7 @@ class Board
     }
 
     /**
-     * 指定した座標のピースを削除する
+     * 指定した座標のピースを削除する。
      */
     public function removePieces(array $coords): void
     {
@@ -64,7 +94,7 @@ class Board
     }
 
     /**
-     * ピースを下に詰めて、新しいピースを生成する
+     * ピースを下に詰めて、新しいピースを生成する。
      * @return array 生成された新しいピースの情報
      */
     public function refill(): array
@@ -72,7 +102,7 @@ class Board
         $fallMoves = [];
         $newPieces = [];
 
-        // ピースを下に詰める
+        // NOTE: 空白を埋めるためにピースを落下させる。
         for ($c = 0; $c < $this->size; $c++) {
             $emptyRow = -1;
             for ($r = $this->size - 1; $r >= 0; $r--) {
@@ -86,7 +116,7 @@ class Board
             }
         }
 
-        // 新しいピースを生成
+        // NOTE: 空きマスには新しいピースを生成する。
         for ($r = 0; $r < $this->size; $r++) {
             for ($c = 0; $c < $this->size; $c++) {
                 if ($this->grid[$r][$c] === null) {

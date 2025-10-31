@@ -1,21 +1,21 @@
 <?php
 session_start();
 
-// 必要なクラスファイルを読み込む
+// INFO: 必要なクラスを読み込み、シーン制御とゲーム処理を利用可能にする。
 require_once 'Model/Util/SceneManager.php';
 require_once 'Model/GameController.php';
 
-// SceneManagerを生成し、現在のシーン情報を取得
+// INFO: 現在のシーン情報を取得して表示内容を切り替える。
 $sceneManager = new SceneManager();
 $view_file = $sceneManager->getSceneViewFile();
 $current_scene = $sceneManager->getCurrentScene();
 
-// ゲームシーンの場合、ゲームロジックの準備を行う
+// NOTE: ゲームシーンではプレイ用データを先に準備しておく。
 if ($current_scene === 'game') {
-    // POSTされた難易度を取得（なければ'normal'）
+    // INFO: セッションに保存された難易度を利用し、未設定なら normal を使う。
     $difficulty = $_SESSION['difficulty'] ?? 'normal';
-    
-    // GameControllerに難易度を渡して生成
+
+    // INFO: 難易度に応じたゲーム状態をロードする。
     $gameController = new GameController($difficulty);
     $gameController->prepareGame();
     $viewData = $gameController->getViewData();
@@ -23,26 +23,26 @@ if ($current_scene === 'game') {
     extract($viewData);
 }
 
-// リザルトシーンの場合、ビューに渡すデータを準備する
+// NOTE: リザルトシーンでは結果表示用データを整える。
 if ($current_scene === 'result') {
-    // セッションからゲーム結果を取得
+    // INFO: ゲーム終了時に保存した結果を読み込む。
     $gameState = $_SESSION['gameState'] ?? 0;
     $finalScore = $_SESSION['score'] ?? 0;
     $movesLeft = $_SESSION['movesLeft'] ?? 0;
 
-    // 表示するテキストを決定
+    // INFO: 状態に合わせて文言を切り替える。
     $resultText = '';
-    if ($gameState === 2) { // GameStatus::CLEAR->value
+    if ($gameState === 2) { // NOTE: GameStatus::CLEAR->value
         $resultText = 'ゲームクリア！';
-    } elseif ($gameState === 3) { // GameStatus::OVER->value
+    } elseif ($gameState === 3) { // NOTE: GameStatus::OVER->value
         $resultText = 'ゲームオーバー…';
     }
 
     $isNewHighScore = $_SESSION['isNewHighScore'] ?? false;
-    unset($_SESSION['isNewHighScore']); // 一度表示したら不要なので削除
+    unset($_SESSION['isNewHighScore']); // NOTE: 再表示を防ぐためにフラグを破棄する。
 }
 
-// ステージセレクトシーンの場合、ハイスコアを読み込む
+// INFO: ステージセレクトでは Cookie のハイスコアを参照する。
 if ($current_scene === 'select') {
     $highScore = $_COOKIE['highscore'] ?? 0;
 }
@@ -57,7 +57,7 @@ if ($current_scene === 'select') {
     <title>3 Match Puzzle</title>
     <link rel="stylesheet" href="css/common.css">
     <?php
-    // SceneManagerが決定したシーンのcssを読み込んで表示
+    // INFO: シーンに合わせたスタイルを追加する。
     $scene_css_file = 'css/' . $current_scene . 'Scene.css';
     if (file_exists($scene_css_file)) {
         echo '<link rel="stylesheet" href="' . $scene_css_file . '">';
@@ -76,9 +76,9 @@ if ($current_scene === 'select') {
         <?php endif; ?>
 
         <?php
-        // SceneManagerが決定したシーンのSceneViewを読み込んで表示
+        // INFO: 選択されたシーンのビューを組み込む。
         if (file_exists($view_file)) {
-            // require_once 'gameSceneView.php' などが実行される
+            // NOTE: require_once でビューを読み込むと副作用として HTML が生成される。
             require_once $view_file;
         } else {
             echo "<div>エラー: ビューファイルが見つかりません。</div>";
