@@ -14,4 +14,5 @@ class SessionKeys
     // シーン管理に関するキー
     public const CURRENT_SCENE = 'currentScene';
     public const DIFFICULTY = 'difficulty';
+    public const SCENE_DATA_PACK = 'sceneDataPack';
 }

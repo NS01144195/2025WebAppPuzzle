@@ -1,7 +1,10 @@
 <?php
+require_once 'SceneDataPack.php';
+
 class SceneManager
 {
     private string $currentScene;
+    private SceneDataPack $dataPack;
 
     /**
      * セッションから現在のシーンを読み込み、リクエストを即時処理する。
@@ -11,6 +14,7 @@ class SceneManager
         require_once 'SessionKeys.php';
         $this->currentScene = $_SESSION[SessionKeys::CURRENT_SCENE] ?? 'title';
         $this->handleRequest();
+        $this->dataPack = SceneDataPackStorage::load($this->currentScene);
     }
 
     /**
@@ -24,6 +28,7 @@ class SceneManager
 
         $action = $_POST['action'];
         $newScene = null;
+        $dataPack = null;
 
         switch ($action) {
             case 'resetHighScore':
@@ -35,28 +40,44 @@ class SceneManager
                     setcookie('highscore', '', time() - 3600, "/");
                 }
                 $newScene = 'title';
+                $dataPack = new TitleSceneDataPack();
                 break;
             case 'selectScene':
                 $newScene = 'select';
+                $highScore = isset($_COOKIE['highscore']) ? (int)$_COOKIE['highscore'] : 0;
+                $dataPack = new SelectSceneDataPack($highScore);
                 break;
             case 'gameScene':
                 $newScene = 'game';
                 if (isset($_POST['difficulty'])) {
-                    $_SESSION['difficulty'] = $_POST['difficulty'];
+                    $difficulty = (string)$_POST['difficulty'];
+                } else {
+                    $difficulty = 'normal';
                 }
-                // NOTE: 新しいゲーム開始時は前回の状態を破棄する。
-                unset($_SESSION['board'], $_SESSION['score'], $_SESSION['movesLeft'], $_SESSION['gameState'], $_SESSION['isNewHighScore']);
+                $dataPack = new GameSceneDataPack($difficulty, true);
                 break;
             case 'titleScene':
                 $newScene = 'title';
+                $dataPack = new TitleSceneDataPack();
                 break;
             case 'resultScene':
                 $newScene = 'result';
+                $dataPack = new ResultSceneDataPack(
+                    (int)($_SESSION[SessionKeys::GAME_STATE] ?? 0),
+                    (int)($_SESSION[SessionKeys::SCORE] ?? 0),
+                    (int)($_SESSION[SessionKeys::MOVES_LEFT] ?? 0),
+                    !empty($_SESSION[SessionKeys::IS_NEW_HIGHSCORE])
+                );
                 break;
         }
 
         if ($newScene) {
             $_SESSION[SessionKeys::CURRENT_SCENE] = $newScene;
+            if ($dataPack instanceof SceneDataPack) {
+                SceneDataPackStorage::save($dataPack);
+            } else {
+                SceneDataPackStorage::load($newScene);
+            }
             // NOTE: F5での再送信を防ぐためにリダイレクトする。
             header('Location: index.php');
             exit;
@@ -79,5 +100,13 @@ class SceneManager
     public function getSceneViewFile(): string
     {
         return 'View/' . $this->currentScene . 'SceneView.php';
+    }
+
+    /**
+     * 現在のシーンデータパックを返す。
+     */
+    public function getDataPack(): SceneDataPack
+    {
+        return $this->dataPack;
     }
 }

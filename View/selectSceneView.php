@@ -1,6 +1,14 @@
 <div id="select-screen" class="scene-view screen active">
     <h1>ステージ選択</h1>
-    <p class="highscore">ハイスコア: <?= htmlspecialchars($highScore ?? 0) ?></p>
+    <?php
+    $displayHighScore = 0;
+    if (isset($sceneDataPack) && $sceneDataPack instanceof SelectSceneDataPack) {
+        $displayHighScore = $sceneDataPack->getHighScore();
+    } else {
+        $displayHighScore = isset($_COOKIE['highscore']) ? (int)$_COOKIE['highscore'] : 0;
+    }
+    ?>
+    <p class="highscore">ハイスコア: <?= htmlspecialchars($displayHighScore) ?></p>
     <div class="stage-buttons">
         <form method="POST" action="index.php">
             <input type="hidden" name="action" value="gameScene">

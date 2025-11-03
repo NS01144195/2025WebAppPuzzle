@@ -4,6 +4,7 @@ header('Content-Type: application/json');
 
 // INFO: プレイヤー操作を処理するコントローラーを読み込む。
 require_once 'Model/GameController.php';
+require_once 'Model/Util/SceneDataPack.php';
 
 // INFO: JSON リクエストボディを取得して配列に変換する。
 $json_data = file_get_contents('php://input');
@@ -16,8 +17,13 @@ if (!is_array($data) || json_last_error() !== JSON_ERROR_NONE || empty($data['ac
     exit;
 }
 
-// INFO: 難易度はセッションから読み出し、未設定なら normal を使う。
-$difficulty = $_SESSION['difficulty'] ?? 'normal';
+// INFO: 難易度はデータパックから読み出し、未設定なら normal を使う。
+$pack = SceneDataPackStorage::load('game');
+if ($pack instanceof GameSceneDataPack) {
+    $difficulty = $pack->getDifficulty();
+} else {
+    $difficulty = $_SESSION[SessionKeys::DIFFICULTY] ?? 'normal';
+}
 
 // INFO: 難易度に応じたコントローラーでアクションを処理する。
 $gameController = new GameController($difficulty);
