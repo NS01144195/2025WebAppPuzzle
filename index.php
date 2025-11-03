@@ -9,17 +9,18 @@ require_once 'Model/GameController.php';
 $sceneManager = new SceneManager();
 $view_file = $sceneManager->getSceneViewFile();
 $currentScene = $sceneManager->getCurrentScene();
+$sceneDataPack = $sceneManager->getDataPack();
 $viewData = [];
+$shouldAcknowledgeHighScore = false;
 
 switch ($currentScene) {
-    case 'select':
-        // INFO: ステージセレクトでは Cookie のハイスコアを参照する。
-        $highScore = $_COOKIE['highscore'] ?? 0;
-        break;
-
     case 'game':
-        // INFO: セッションに保存された難易度を利用し、未設定なら normal を使う。
-        $difficulty = $_SESSION['difficulty'] ?? 'normal';
+        // INFO: データパックに保存された難易度を利用し、未設定なら normal を使う。
+        if ($sceneDataPack instanceof GameSceneDataPack) {
+            $difficulty = $sceneDataPack->getDifficulty();
+        } else {
+            $difficulty = 'normal';
+        }
 
         // INFO: 難易度に応じたゲーム状態をロードする。
         $gameController = new GameController($difficulty);
@@ -28,20 +29,9 @@ switch ($currentScene) {
         break;
 
     case 'result':
-        // INFO: ゲーム終了時に保存した結果を読み込む。
-        $gameState = $_SESSION['gameState'] ?? 0;
-        $finalScore = $_SESSION['score'] ?? 0;
-        $movesLeft = $_SESSION['movesLeft'] ?? 0;
-
-        // INFO: 状態に合わせて文言を切り替える。
-        $resultText = match ($gameState) {
-            2 => 'ゲームクリア！',
-            3 => 'ゲームオーバー…',
-            default => ''
-        };
-
-        $isNewHighScore = $_SESSION['isNewHighScore'] ?? false;
-        unset($_SESSION['isNewHighScore']); // NOTE: 再表示を防ぐためにフラグを破棄する。
+        if ($sceneDataPack instanceof ResultSceneDataPack && $sceneDataPack->isNewHighScore()) {
+            $shouldAcknowledgeHighScore = true;
+        }
         break;
 }
 
@@ -84,6 +74,12 @@ if (!empty($viewData)) {
             require_once $view_file;
         } else {
             echo "<div>エラー: ビューファイルが見つかりません。</div>";
+        }
+
+        if ($shouldAcknowledgeHighScore) {
+            // NOTE: ビュー表示後にハイスコア更新フラグをリセットして再表示を防ぐ。
+            $sceneDataPack->acknowledgeHighScoreMessage();
+            SceneDataPackStorage::update($sceneDataPack);
         }
         ?>
     </div>
