@@ -3,163 +3,51 @@ require_once 'SessionKeys.php';
 
 interface SceneDataPack
 {
-    public function getScene(): string;
-
-    /**
-     * セッションへ適用する。
-     */
-    public function apply(): void;
-
-    /**
-     * セッション保存用のペイロードを返す。
-     *
-     * @return array<string, mixed>
-     */
-    public function toPayload(): array;
-
-    /**
-     * セッションから復元する。
-     *
-     * @param array<string, mixed> $payload
-     */
-    public static function fromPayload(array $payload): SceneDataPack;
 }
 
 final class TitleSceneDataPack implements SceneDataPack
 {
-    public function getScene(): string
-    {
-        return 'title';
-    }
-
-    public function apply(): void
-    {
-        // タイトルシーンは共有データを必要としない。
-    }
-
-    public function toPayload(): array
-    {
-        return [];
-    }
-
-    public static function fromPayload(array $payload): SceneDataPack
-    {
-        return new self();
-    }
+    public const SCENE = 'title';
 }
 
 final class SelectSceneDataPack implements SceneDataPack
 {
+    public const SCENE = 'select';
+
     public function __construct(private int $highScore)
     {
-    }
-
-    public function getScene(): string
-    {
-        return 'select';
-    }
-
-    public function apply(): void
-    {
-        // シーン切り替え時に特別な処理は不要。
-    }
-
-    public function toPayload(): array
-    {
-        return ['highScore' => $this->highScore];
     }
 
     public function getHighScore(): int
     {
         return $this->highScore;
     }
-
-    public static function fromPayload(array $payload): SceneDataPack
-    {
-        return new self((int)($payload['highScore'] ?? 0));
-    }
 }
 
 final class GameSceneDataPack implements SceneDataPack
 {
-    public function __construct(private string $difficulty, private bool $shouldResetState = false)
-    {
-    }
+    public const SCENE = 'game';
 
-    public function getScene(): string
+    public function __construct(private string $difficulty)
     {
-        return 'game';
-    }
-
-    public function apply(): void
-    {
-        $_SESSION[SessionKeys::DIFFICULTY] = $this->difficulty;
-
-        if ($this->shouldResetState) {
-            unset(
-                $_SESSION[SessionKeys::BOARD],
-                $_SESSION[SessionKeys::SCORE],
-                $_SESSION[SessionKeys::MOVES_LEFT],
-                $_SESSION[SessionKeys::GAME_STATE],
-                $_SESSION[SessionKeys::IS_NEW_HIGHSCORE]
-            );
-            $this->shouldResetState = false;
-        }
-    }
-
-    public function toPayload(): array
-    {
-        return [
-            'difficulty' => $this->difficulty,
-            'shouldResetState' => $this->shouldResetState,
-        ];
     }
 
     public function getDifficulty(): string
     {
         return $this->difficulty;
     }
-
-    public static function fromPayload(array $payload): SceneDataPack
-    {
-        $difficulty = isset($payload['difficulty']) ? (string)$payload['difficulty'] : 'normal';
-        $shouldResetState = !empty($payload['shouldResetState']);
-
-        return new self($difficulty, $shouldResetState);
-    }
 }
 
 final class ResultSceneDataPack implements SceneDataPack
 {
+    public const SCENE = 'result';
+
     public function __construct(
         private int $gameState,
         private int $finalScore,
         private int $movesLeft,
         private bool $isNewHighScore
     ) {
-    }
-
-    public function getScene(): string
-    {
-        return 'result';
-    }
-
-    public function apply(): void
-    {
-        $_SESSION[SessionKeys::GAME_STATE] = $this->gameState;
-        $_SESSION[SessionKeys::SCORE] = $this->finalScore;
-        $_SESSION[SessionKeys::MOVES_LEFT] = $this->movesLeft;
-        $_SESSION[SessionKeys::IS_NEW_HIGHSCORE] = $this->isNewHighScore;
-    }
-
-    public function toPayload(): array
-    {
-        return [
-            'gameState' => $this->gameState,
-            'finalScore' => $this->finalScore,
-            'movesLeft' => $this->movesLeft,
-            'isNewHighScore' => $this->isNewHighScore,
-        ];
     }
 
     public function getGameState(): int
@@ -190,27 +78,19 @@ final class ResultSceneDataPack implements SceneDataPack
         }
     }
 
-    public static function fromPayload(array $payload): SceneDataPack
-    {
-        return new self(
-            (int)($payload['gameState'] ?? 0),
-            (int)($payload['finalScore'] ?? 0),
-            (int)($payload['movesLeft'] ?? 0),
-            !empty($payload['isNewHighScore'])
-        );
-    }
 }
 
 final class SceneDataPackStorage
 {
     public static function save(SceneDataPack $pack): void
     {
-        $pack->apply();
+        self::apply($pack);
         self::store($pack);
     }
 
     public static function update(SceneDataPack $pack): void
     {
+        self::apply($pack);
         self::store($pack);
     }
 
@@ -224,15 +104,15 @@ final class SceneDataPackStorage
             && class_exists($stored['class'])
             && is_subclass_of($stored['class'], SceneDataPack::class)
         ) {
-            $class = $stored['class'];
-            /** @var SceneDataPack $pack */
-            $pack = $class::fromPayload((array)$stored['payload']);
-            $pack->apply();
-            return $pack;
+            $pack = self::hydratePack((string)$stored['class'], (array)$stored['payload']);
+            if ($pack instanceof SceneDataPack && self::getSceneName($pack) === $scene) {
+                self::apply($pack);
+                return $pack;
+            }
         }
 
         $pack = self::createDefaultPack($scene);
-        $pack->apply();
+        self::apply($pack);
         self::store($pack);
 
         return $pack;
@@ -262,9 +142,90 @@ final class SceneDataPackStorage
     private static function store(SceneDataPack $pack): void
     {
         $_SESSION[SessionKeys::SCENE_DATA_PACK] = [
-            'scene' => $pack->getScene(),
+            'scene' => self::getSceneName($pack),
             'class' => get_class($pack),
-            'payload' => $pack->toPayload(),
+            'payload' => self::toPayload($pack),
         ];
+    }
+
+    /**
+     * @param class-string $class
+     */
+    private static function hydratePack(string $class, array $payload): ?SceneDataPack
+    {
+        switch ($class) {
+            case TitleSceneDataPack::class:
+                return new TitleSceneDataPack();
+            case SelectSceneDataPack::class:
+                return new SelectSceneDataPack((int)($payload['highScore'] ?? 0));
+            case GameSceneDataPack::class:
+                $difficulty = isset($payload['difficulty']) ? (string)$payload['difficulty'] : 'normal';
+                return new GameSceneDataPack($difficulty);
+            case ResultSceneDataPack::class:
+                return new ResultSceneDataPack(
+                    (int)($payload['gameState'] ?? 0),
+                    (int)($payload['finalScore'] ?? 0),
+                    (int)($payload['movesLeft'] ?? 0),
+                    !empty($payload['isNewHighScore'])
+                );
+            default:
+                return null;
+        }
+    }
+
+    private static function getSceneName(SceneDataPack $pack): string
+    {
+        return match (true) {
+            $pack instanceof TitleSceneDataPack => TitleSceneDataPack::SCENE,
+            $pack instanceof SelectSceneDataPack => SelectSceneDataPack::SCENE,
+            $pack instanceof GameSceneDataPack => GameSceneDataPack::SCENE,
+            $pack instanceof ResultSceneDataPack => ResultSceneDataPack::SCENE,
+            default => TitleSceneDataPack::SCENE,
+        };
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function toPayload(SceneDataPack $pack): array
+    {
+        if ($pack instanceof SelectSceneDataPack) {
+            return ['highScore' => $pack->getHighScore()];
+        }
+
+        if ($pack instanceof GameSceneDataPack) {
+            return ['difficulty' => $pack->getDifficulty()];
+        }
+
+        if ($pack instanceof ResultSceneDataPack) {
+            return [
+                'gameState' => $pack->getGameState(),
+                'finalScore' => $pack->getFinalScore(),
+                'movesLeft' => $pack->getMovesLeft(),
+                'isNewHighScore' => $pack->isNewHighScore(),
+            ];
+        }
+
+        return [];
+    }
+
+    private static function apply(SceneDataPack $pack): void
+    {
+        if ($pack instanceof GameSceneDataPack) {
+            $_SESSION[SessionKeys::DIFFICULTY] = $pack->getDifficulty();
+            return;
+        }
+
+        if ($pack instanceof ResultSceneDataPack) {
+            $_SESSION[SessionKeys::GAME_STATE] = $pack->getGameState();
+            $_SESSION[SessionKeys::SCORE] = $pack->getFinalScore();
+            $_SESSION[SessionKeys::MOVES_LEFT] = $pack->getMovesLeft();
+            if ($pack->isNewHighScore()) {
+                $_SESSION[SessionKeys::IS_NEW_HIGHSCORE] = true;
+            } else {
+                unset($_SESSION[SessionKeys::IS_NEW_HIGHSCORE]);
+            }
+            return;
+        }
     }
 }
