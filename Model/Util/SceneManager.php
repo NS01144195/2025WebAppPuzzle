@@ -54,7 +54,8 @@ class SceneManager
                 } else {
                     $difficulty = 'normal';
                 }
-                $dataPack = new GameSceneDataPack($difficulty, true);
+                $this->resetGameState();
+                $dataPack = new GameSceneDataPack($difficulty);
                 break;
             case 'titleScene':
                 $newScene = 'title';
@@ -108,5 +109,16 @@ class SceneManager
     public function getDataPack(): SceneDataPack
     {
         return $this->dataPack;
+    }
+
+    private function resetGameState(): void
+    {
+        unset(
+            $_SESSION[SessionKeys::BOARD],
+            $_SESSION[SessionKeys::SCORE],
+            $_SESSION[SessionKeys::MOVES_LEFT],
+            $_SESSION[SessionKeys::GAME_STATE],
+            $_SESSION[SessionKeys::IS_NEW_HIGHSCORE]
+        );
     }
 }
