@@ -14,10 +14,16 @@ final class SelectSceneDataPack implements SceneDataPack
 {
     public const SCENE = 'select';
 
+    /**
+     * ハイスコア値を受け取りデータパックを初期化する。
+     */
     public function __construct(private int $highScore)
     {
     }
 
+    /**
+     * 保存されているハイスコアを取得する。
+     */
     public function getHighScore(): int
     {
         return $this->highScore;
@@ -28,10 +34,16 @@ final class GameSceneDataPack implements SceneDataPack
 {
     public const SCENE = 'game';
 
+    /**
+     * 選択された難易度を保持してデータパックを構築する。
+     */
     public function __construct(private string $difficulty)
     {
     }
 
+    /**
+     * 現在設定されている難易度名を返す。
+     */
     public function getDifficulty(): string
     {
         return $this->difficulty;
@@ -42,6 +54,9 @@ final class ResultSceneDataPack implements SceneDataPack
 {
     public const SCENE = 'result';
 
+    /**
+     * ゲーム結果とハイスコア情報をまとめて保持する。
+     */
     public function __construct(
         private int $gameState,
         private int $finalScore,
@@ -50,26 +65,41 @@ final class ResultSceneDataPack implements SceneDataPack
     ) {
     }
 
+    /**
+     * 最終的なゲームステータス値を返す。
+     */
     public function getGameState(): int
     {
         return $this->gameState;
     }
 
+    /**
+     * 記録された最終スコアを返す。
+     */
     public function getFinalScore(): int
     {
         return $this->finalScore;
     }
 
+    /**
+     * 終了時点で残っていた手数を返す。
+     */
     public function getMovesLeft(): int
     {
         return $this->movesLeft;
     }
 
+    /**
+     * ハイスコアを更新したかどうかを返す。
+     */
     public function isNewHighScore(): bool
     {
         return $this->isNewHighScore;
     }
 
+    /**
+     * ハイスコア演出済みフラグをリセットし、再表示を防ぐ。
+     */
     public function acknowledgeHighScoreMessage(): void
     {
         if ($this->isNewHighScore) {
@@ -82,18 +112,27 @@ final class ResultSceneDataPack implements SceneDataPack
 
 final class SceneDataPackStorage
 {
+    /**
+     * データパックを適用・保存してシーン状態を更新する。
+     */
     public static function save(SceneDataPack $pack): void
     {
         self::apply($pack);
         self::store($pack);
     }
 
+    /**
+     * 既存のデータパックを更新してセッションに反映する。
+     */
     public static function update(SceneDataPack $pack): void
     {
         self::apply($pack);
         self::store($pack);
     }
 
+    /**
+     * 指定シーンのデータパックを読み込み、必要ならデフォルトを生成する。
+     */
     public static function load(string $scene): SceneDataPack
     {
         $stored = $_SESSION[SessionKeys::SCENE_DATA_PACK] ?? null;
@@ -118,6 +157,9 @@ final class SceneDataPackStorage
         return $pack;
     }
 
+    /**
+     * シーン名に応じたデフォルトのデータパックを生成する。
+     */
     private static function createDefaultPack(string $scene): SceneDataPack
     {
         switch ($scene) {
@@ -139,6 +181,9 @@ final class SceneDataPackStorage
         }
     }
 
+    /**
+     * データパックをシリアライズしてセッションへ保存する。
+     */
     private static function store(SceneDataPack $pack): void
     {
         $_SESSION[SessionKeys::SCENE_DATA_PACK] = [
@@ -149,7 +194,9 @@ final class SceneDataPackStorage
     }
 
     /**
+     * 保存済みのクラス情報とペイロードからデータパックを再生成する。
      * @param class-string $class
+     * @return SceneDataPack|null 保存内容から再構築したデータパック
      */
     private static function hydratePack(string $class, array $payload): ?SceneDataPack
     {
@@ -173,6 +220,9 @@ final class SceneDataPackStorage
         }
     }
 
+    /**
+     * データパックに紐づくシーン識別子を取得する。
+     */
     private static function getSceneName(SceneDataPack $pack): string
     {
         return match (true) {
@@ -185,6 +235,7 @@ final class SceneDataPackStorage
     }
 
     /**
+     * データパックの内容をシリアライズ可能な配列へ変換する。
      * @return array<string, mixed>
      */
     private static function toPayload(SceneDataPack $pack): array
@@ -209,6 +260,9 @@ final class SceneDataPackStorage
         return [];
     }
 
+    /**
+     * データパック内容をセッションへ反映して整合性を保つ。
+     */
     private static function apply(SceneDataPack $pack): void
     {
         if ($pack instanceof GameSceneDataPack) {
