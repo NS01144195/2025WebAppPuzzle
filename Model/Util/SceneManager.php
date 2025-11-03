@@ -1,5 +1,5 @@
 <?php
-require_once 'SceneDataPack.php';
+require_once __DIR__ . '/SceneDataPack.php';
 
 class SceneManager
 {
@@ -11,7 +11,7 @@ class SceneManager
      */
     public function __construct()
     {
-        require_once 'SessionKeys.php';
+        require_once __DIR__ . '/SessionKeys.php';
         $this->currentScene = $_SESSION[SessionKeys::CURRENT_SCENE] ?? 'title';
         $this->handleRequest();
         $this->dataPack = SceneDataPackStorage::load($this->currentScene);

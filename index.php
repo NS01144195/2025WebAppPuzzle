@@ -2,8 +2,8 @@
 session_start();
 
 // INFO: 必要なクラスを読み込み、シーン制御とゲーム処理を利用可能にする。
-require_once 'Model/Util/SceneManager.php';
-require_once 'Model/GameController.php';
+require_once __DIR__ . '/Model/Util/SceneManager.php';
+require_once __DIR__ . '/Model/GameController.php';
 
 // INFO: 現在のシーン情報を取得して表示内容を切り替える。
 $sceneManager = new SceneManager();
