@@ -111,6 +111,9 @@ class SceneManager
         return $this->dataPack;
     }
 
+    /**
+     * ゲーム関連のセッション値をまとめて初期化する。
+     */
     private function resetGameState(): void
     {
         unset(
