@@ -76,7 +76,7 @@ if (!empty($viewData)) {
             echo "<div>エラー: ビューファイルが見つかりません。</div>";
         }
 
-        if ($shouldAcknowledgeHighScore) {
+        if ($shouldAcknowledgeHighScore && $sceneDataPack instanceof ResultSceneDataPack) {
             // NOTE: ビュー表示後にハイスコア更新フラグをリセットして再表示を防ぐ。
             $sceneDataPack->acknowledgeHighScoreMessage();
             SceneDataPackStorage::update($sceneDataPack);
