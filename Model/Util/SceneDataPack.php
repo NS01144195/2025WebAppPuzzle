@@ -1,5 +1,5 @@
 <?php
-require_once 'SessionKeys.php';
+require_once __DIR__ . '/SessionKeys.php';
 
 interface SceneDataPack
 {

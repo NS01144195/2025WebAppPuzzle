@@ -3,8 +3,8 @@ session_start();
 header('Content-Type: application/json');
 
 // INFO: プレイヤー操作を処理するコントローラーを読み込む。
-require_once 'Model/GameController.php';
-require_once 'Model/Util/SceneDataPack.php';
+require_once __DIR__ . '/Model/GameController.php';
+require_once __DIR__ . '/Model/Util/SceneDataPack.php';
 
 // INFO: JSON リクエストボディを取得して配列に変換する。
 $json_data = file_get_contents('php://input');
