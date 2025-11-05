@@ -1,7 +1,4 @@
 export class ViewManager {
-    /**
-     * 主要なDOM要素への参照を取得してビュー操作を初期化する。
-     */
     constructor() {
         this.boardElement = document.getElementById('puzzle-board');
         this.scoreElement = document.getElementById('score-value');

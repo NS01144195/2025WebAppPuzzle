@@ -1,9 +1,6 @@
 import { ApiController } from './ApiController.js';
 import { ViewManager } from './ViewManager.js';
 
-/**
- * ページ読み込み完了後にゲームの初期化処理を実行する。
- */
 document.addEventListener('DOMContentLoaded', () => {
 
     const boardElement = document.getElementById('puzzle-board');
@@ -30,9 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return Math.abs(r1 - r2) + Math.abs(c1 - c2) === 1;
     };
 
-    /**
-     * クリック入力を受け取り、ピース交換とアニメーションを制御する。
-     */
+    // INFO: クリック操作を受け付けるイベントリスナー。
     boardElement.addEventListener('click', async (event) => {
         if (isAnimating) return; // NOTE: アニメーション中は入力を無効化する。
 
