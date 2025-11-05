@@ -110,7 +110,7 @@ class Board
         $fallMoves = [];
         $newPieces = [];
 
-        // NOTE: 空白を埋めるためにピースを落下させる。
+        // 空白を埋めるためにピースを落下させる。
         for ($c = 0; $c < $this->size; $c++) {
             $emptyRow = -1;
             for ($r = $this->size - 1; $r >= 0; $r--) {
@@ -124,7 +124,7 @@ class Board
             }
         }
 
-        // NOTE: 空きマスには新しいピースを生成する。
+        // 空きマスには新しいピースを生成する。
         for ($r = 0; $r < $this->size; $r++) {
             for ($c = 0; $c < $this->size; $c++) {
                 if ($this->grid[$r][$c] === null) {

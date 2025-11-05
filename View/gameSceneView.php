@@ -1,5 +1,5 @@
 <?php
-// INFO: SceneManager から読み込まれるゲームシーン。
+// SceneManager から読み込まれるゲームシーン。
 ?>
 <?php
 /**
@@ -13,12 +13,12 @@
 <div id="game-screen" class="scene-view screen active">
     <div id="puzzle-board">
         <?php
-        // INFO: 盤面データがセットされているか判定する。
+        // 盤面データがセットされているか判定する。
         if (!empty($board)) {
             $boardSize = count($board);
             for ($row = 0; $row < $boardSize; $row++) {
                 for ($col = 0; $col < $boardSize; $col++) {
-                    // NOTE: 色コードは XSS 対策のため htmlspecialchars を通す。
+                    // 色コードは XSS 対策のため htmlspecialchars を通す。
                     $color = htmlspecialchars($board[$row][$col]);
 
                     echo '<div class="cell" data-row="' . $row . '" data-col="' . $col . '">';
@@ -27,7 +27,7 @@
                 }
             }
         } else {
-            // NOTE: データ不足時はユーザーにエラーを知らせる。
+            // データ不足時はユーザーにエラーを知らせる。
             echo '<div style="color: white; padding: 20px;">盤面データがありません。</div>';
         }
         ?>

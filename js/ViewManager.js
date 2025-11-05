@@ -65,18 +65,18 @@ export class ViewManager {
     async animateSwap(piece1, piece2) {
         if (!piece1 || !piece2) return;
 
-        // INFO: 各ピースの位置情報を取得する。
+        // 各ピースの位置情報を取得する。
         const rect1 = piece1.getBoundingClientRect();
         const rect2 = piece2.getBoundingClientRect();
 
-        // INFO: CSS transform でスムーズに移動させる。
+        // CSS transform でスムーズに移動させる。
         piece1.style.transform = `translate(${rect2.left - rect1.left}px, ${rect2.top - rect1.top}px)`;
         piece2.style.transform = `translate(${rect1.left - rect2.left}px, ${rect1.top - rect2.top}px)`;
 
-        // NOTE: トランジションが完了するまで待機する。
+        // トランジションが完了するまで待機する。
         await new Promise(resolve => setTimeout(resolve, 150));
 
-        // NOTE: transform をリセットし、DOM 構造を入れ替える。
+        // transform をリセットし、DOM 構造を入れ替える。
         piece1.style.transform = '';
         piece2.style.transform = '';
         const cell1 = piece1.parentElement;
@@ -92,7 +92,7 @@ export class ViewManager {
      */
     async animateRemove(matchedCoords) {
         const piecesToRemove = [];
-        // NOTE: 一斉にクラスを付与して消滅エフェクトを開始する。
+        // 一斉にクラスを付与して消滅エフェクトを開始する。
         for (const coord of matchedCoords) {
             const cell = this.boardElement.querySelector(`.cell[data-row="${coord.row}"][data-col="${coord.col}"]`);
             const piece = this.getPiece(cell);
@@ -104,10 +104,10 @@ export class ViewManager {
 
         if (piecesToRemove.length === 0) return;
 
-        // NOTE: アニメーション完了まで 200ms 待機する。
+        // アニメーション完了まで 200ms 待機する。
         await new Promise(resolve => setTimeout(resolve, 200));
 
-        // NOTE: エフェクト終了後にピースを DOM から削除する。
+        // エフェクト終了後にピースを DOM から削除する。
         for (const piece of piecesToRemove) {
             piece.remove();
         }
@@ -119,7 +119,7 @@ export class ViewManager {
      * @returns {Promise<void>}
      */
     async animateFallAndRefill(refillData) {
-        // NOTE: 補充前にピースを落下させる。
+        // 補充前にピースを落下させる。
         for (const move of refillData.fallMoves) {
             const fromCell = this.boardElement.querySelector(`.cell[data-row="${move.from.row}"][data-col="${move.from.col}"]`);
             const toCell = this.boardElement.querySelector(`.cell[data-row="${move.to.row}"][data-col="${move.to.col}"]`);
@@ -127,7 +127,7 @@ export class ViewManager {
             if (piece) toCell.appendChild(piece);
         }
 
-        // NOTE: 空いたセルに新しいピースを追加する。
+        // 空いたセルに新しいピースを追加する。
         for (const newPieceData of refillData.newPieces) {
             const cell = this.boardElement.querySelector(`.cell[data-row="${newPieceData.row}"][data-col="${newPieceData.col}"]`);
             if (cell) {
@@ -137,7 +137,7 @@ export class ViewManager {
                 cell.appendChild(newPiece);
             }
         }
-        await new Promise(resolve => setTimeout(resolve, 200)); // NOTE: 補充演出の余韻として 0.2 秒待つ。
+        await new Promise(resolve => setTimeout(resolve, 200)); // 補充演出の余韻として 0.2 秒待つ。
     }
 
     /**
@@ -151,7 +151,7 @@ export class ViewManager {
             this.resultOverlay.style.display = 'flex';
 
             setTimeout(() => {
-                // NOTE: メイン側に結果シーン遷移を依頼するイベントを発火
+                // メイン側に結果シーン遷移を依頼するイベントを発火
                 document.dispatchEvent(new CustomEvent('app:result'));
             }, 2000);
         }

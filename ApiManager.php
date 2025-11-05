@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $json_data = file_get_contents('php://input');
 $data = json_decode($json_data, true);
 
-// INFO: デコードに失敗した場合やアクション未指定の要求はエラーとして扱う。
+// デコードに失敗した場合やアクション未指定の要求はエラーとして扱う。
 if (!is_array($data) || json_last_error() !== JSON_ERROR_NONE || empty($data['action'])) {
     http_response_code(400);
     echo json_encode(['status' => 'error', 'message' => 'Invalid request']);

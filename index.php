@@ -1,12 +1,12 @@
 <?php
 session_start();
 
-// INFO: 必要なクラスを読み込み、シーン制御とゲーム処理を利用可能にする。
+// 必要なクラスを読み込み、シーン制御とゲーム処理を利用可能にする。
 require_once 'Model/Util/SceneManager.php';
 require_once 'Model/GameController.php';
 require_once 'Model/Util/SessionKeys.php';
 
-// INFO: 現在のシーン情報を取得して表示内容を切り替える。
+// 現在のシーン情報を取得して表示内容を切り替える。
 $sceneManager = new SceneManager();
 $view_file = $sceneManager->getSceneViewFile();
 $currentScene = $sceneManager->getCurrentScene();
@@ -14,27 +14,27 @@ $viewData = [];
 
 switch ($currentScene) {
     case 'select':
-        // INFO: ステージセレクトでは Cookie のハイスコアを参照する。
+        // ステージセレクトでは Cookie のハイスコアを参照する。
         $highScore = $_COOKIE['highscore'] ?? 0;
         break;
 
     case 'game':
-        // INFO: セッションに保存された難易度を利用し、未設定なら normal を使う。
+        // セッションに保存された難易度を利用し、未設定なら normal を使う。
         $difficulty = $_SESSION[SessionKeys::DIFFICULTY] ?? 'normal';
 
-        // INFO: 難易度に応じたゲーム状態をロードする。
+        // 難易度に応じたゲーム状態をロードする。
         $gameController = new GameController($difficulty);
         $gameController->prepareGame();
         $viewData = $gameController->getViewData();
         break;
 
     case 'result':
-        // INFO: ゲーム終了時に保存した結果を読み込む。
+        // ゲーム終了時に保存した結果を読み込む。
         $gameState = $_SESSION[SessionKeys::GAME_STATE] ?? 0;
         $finalScore = $_SESSION[SessionKeys::SCORE] ?? 0;
         $movesLeft = $_SESSION[SessionKeys::MOVES_LEFT] ?? 0;
 
-        // INFO: 状態に合わせて文言を切り替える。
+        // 状態に合わせて文言を切り替える。
         $resultText = match ($gameState) {
             2 => 'ゲームクリア！',
             3 => 'ゲームオーバー…',
@@ -42,7 +42,7 @@ switch ($currentScene) {
         };
 
         $isNewHighScore = $_SESSION[SessionKeys::IS_NEW_HIGHSCORE] ?? false;
-        unset($_SESSION[SessionKeys::IS_NEW_HIGHSCORE]); // NOTE: 再表示を防ぐためにフラグを破棄する。
+        unset($_SESSION[SessionKeys::IS_NEW_HIGHSCORE]); // 再表示を防ぐためにフラグを破棄する。
         break;
 }
 
@@ -60,7 +60,7 @@ if (!empty($viewData)) {
     <title>3 Match Puzzle</title>
     <link rel="stylesheet" href="css/common.css">
     <?php
-    // INFO: シーンに合わせたスタイルを追加する。
+    // シーンに合わせたスタイルを追加する。
     $sceneCssFile = 'css/' . $currentScene . 'Scene.css';
     if (file_exists($sceneCssFile)) {
         echo '<link rel="stylesheet" href="' . $sceneCssFile . '">';
@@ -79,9 +79,9 @@ if (!empty($viewData)) {
         <?php endif; ?>
 
         <?php
-        // INFO: 選択されたシーンのビューを組み込む。
+        // 選択されたシーンのビューを組み込む。
         if (file_exists($view_file)) {
-            // NOTE: require_once でビューを読み込むと副作用として HTML が生成される。
+            // require_once でビューを読み込むと副作用として HTML が生成される。
             require_once $view_file;
         } else {
             echo "<div>エラー: ビューファイルが見つかりません。</div>";

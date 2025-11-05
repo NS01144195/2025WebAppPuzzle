@@ -32,7 +32,7 @@ class SceneManager
                 $submittedPassword = $_POST['password'] ?? '';
 
                 if ($submittedPassword === $correctPassword) {
-                    // NOTE: 正しいパスワード入力時のみハイスコア Cookie を消去する。
+                    // 正しいパスワード入力時のみハイスコア Cookie を消去する。
                     setcookie('highscore', '', time() - 3600, "/");
                 }
                 $newScene = 'title';
@@ -45,7 +45,7 @@ class SceneManager
                 if (isset($_POST['difficulty'])) {
                     $_SESSION[SessionKeys::DIFFICULTY] = $_POST['difficulty'];
                 }
-                // NOTE: 新しいゲーム開始時は前回の状態を破棄する。
+                // 新しいゲーム開始時は前回の状態を破棄する。
                 unset(
                     $_SESSION[SessionKeys::BOARD],
                     $_SESSION[SessionKeys::SCORE],
@@ -64,7 +64,7 @@ class SceneManager
 
         if ($newScene) {
             $_SESSION[SessionKeys::CURRENT_SCENE] = $newScene;
-            // NOTE: F5での再送信を防ぐためにリダイレクトする。
+            // F5での再送信を防ぐためにリダイレクトする。
             header('Location: index.php');
             exit;
         }

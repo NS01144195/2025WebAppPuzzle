@@ -1,5 +1,5 @@
 <?php
-// INFO: SceneManager から読み込まれるセレクトシーン。
+// SceneManager から読み込まれるセレクトシーン。
 ?>
 <div id="select-screen" class="scene-view screen active">
     <h1>ステージ選択</h1>

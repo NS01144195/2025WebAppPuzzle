@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     let selectedCell = null;
-    // INFO: アニメーション中の操作をブロックするフラグ。
+    // アニメーション中の操作をブロックするフラグ。
     let isAnimating = false;
 
     /**
@@ -40,40 +40,40 @@ document.addEventListener('DOMContentLoaded', () => {
         return Math.abs(r1 - r2) + Math.abs(c1 - c2) === 1;
     };
 
-    // INFO: クリック操作を受け付けるイベントリスナー。
+    // クリック操作を受け付けるイベントリスナー。
     /**
      * 盤面クリック時の入れ替え処理を実行する。
      * @param {MouseEvent} event
      * @returns {Promise<void>}
      */
     boardElement.addEventListener('click', async (event) => {
-        if (isAnimating) return; // NOTE: アニメーション中は入力を無効化する。
+        if (isAnimating) return; // アニメーション中は入力を無効化する。
 
         const clickedCell = event.target.closest('.cell');
         if (!clickedCell || !view.getPiece(clickedCell)) {
-            // NOTE: セル外をクリックした場合は選択状態を解除する。
+            // セル外をクリックした場合は選択状態を解除する。
             if (selectedCell) view.deselectPiece(view.getPiece(selectedCell));
             selectedCell = null;
             return;
         }
 
         if (!selectedCell) {
-            // INFO: 1つ目のピースを選択状態にする。
+            // 1つ目のピースを選択状態にする。
             selectedCell = clickedCell;
             view.selectPiece(view.getPiece(selectedCell));
         } else {
-            // INFO: 2つ目のピースを選択して入れ替え処理を開始する。
+            // 2つ目のピースを選択して入れ替え処理を開始する。
             const piece1 = view.getPiece(selectedCell);
-            view.deselectPiece(piece1); // NOTE: 先に選択表示をリセットする。
+            view.deselectPiece(piece1); // 先に選択表示をリセットする。
 
             if (selectedCell === clickedCell) {
-                // NOTE: 同じピースが選択された場合は処理を中断する。
+                // 同じピースが選択された場合は処理を中断する。
                 selectedCell = null;
                 return;
             }
 
             if (!isAdjacent(selectedCell, clickedCell)) {
-                // NOTE: 隣接していない場合は選択を解除して終了する。
+                // 隣接していない場合は選択を解除して終了する。
                 console.log("隣接していません。選択をリセットします。");
                 selectedCell = null;
                 return;
@@ -86,18 +86,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const r2 = parseInt(clickedCell.dataset.row);
             const c2 = parseInt(clickedCell.dataset.col);
             
-            // NOTE: 見た目の入れ替えアニメーションを先に実施する。
+            // 見た目の入れ替えアニメーションを先に実施する。
             await view.animateSwap(piece1, view.getPiece(clickedCell));
 
-            // INFO: API に交換リクエストを送信する。
+            // API に交換リクエストを送信する。
             const result = await api.swapPieces(r1, c1, r2, c2);
 
-            // INFO: サーバー結果に応じてアニメーションを分岐する。
+            // サーバー結果に応じてアニメーションを分岐する。
             if (result.status === 'success' && result.chainSteps.length > 0) {
                 for (const step of result.chainSteps) {
                     await view.animateRemove(step.matchedCoords);
 
-                    // NOTE: 落下演出が自然になるよう短い待機を挟む。
+                    // 落下演出が自然になるよう短い待機を挟む。
                     await new Promise(resolve => setTimeout(resolve, 50));
 
                     await view.animateFallAndRefill(step.refillData);
@@ -105,15 +105,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 view.updateScore(result.score);
                 view.updateMoves(result.movesLeft);
 
-                // INFO: ゲーム状態を判定して必要なら結果を表示する。
-                if (result.gameState === 2) { // NOTE: CLEAR 状態。
+                // ゲーム状態を判定して必要なら結果を表示する。
+                if (result.gameState === 2) { // CLEAR 状態。
                     view.showResult("ゲームクリア！");
-                } else if (result.gameState === 3) { // NOTE: OVER 状態。
+                } else if (result.gameState === 3) { // OVER 状態。
                     view.showResult("ゲームオーバー…");
                 }
 
             } else {
-                // NOTE: マッチしない場合は元の配置に戻す。
+                // マッチしない場合は元の配置に戻す。
                 await view.animateSwap(view.getPiece(selectedCell), view.getPiece(clickedCell));
             }
 

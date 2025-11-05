@@ -27,7 +27,7 @@
             return await response.json();
         } catch (error) {
             console.error('API通信に失敗しました:', error);
-            // NOTE: エラー時もフロントが継続できるよう空データを返す。
+            // エラー時もフロントが継続できるよう空データを返す。
             return { status: 'error', chainSteps: [] };
         }
     }
@@ -38,7 +38,7 @@
      * @returns {Promise<void>}
      */
     async changeScene(scene) {
-        // INFO: SceneManager.php が期待している "〇〇Scene" に変換する。
+        // SceneManager.php が期待している "〇〇Scene" に変換する。
         const actionMap = {
             title: 'titleScene',
             select: 'selectScene',
@@ -48,11 +48,11 @@
 
         const action = actionMap[scene];
         if (!action) {
-            console.error(`無効なシーン指定: ${scene}`); // NOTE: 定義外のシーンには何もしない。
+            console.error(`無効なシーン指定: ${scene}`); // 定義外のシーンには何もしない。
             return;
         }
 
-        // INFO: フォームを生成して POST する事で既存の PHP フローを再利用する。
+        // フォームを生成して POST する事で既存の PHP フローを再利用する。
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = 'index.php';

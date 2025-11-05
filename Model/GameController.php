@@ -30,12 +30,12 @@ class GameController
     public function prepareGame(): void
     {
         if (!isset($_SESSION[SessionKeys::BOARD])) {
-            // NOTE: 新規ゲームでは盤面を初期化してから保存する。
+            // 新規ゲームでは盤面を初期化してから保存する。
             $this->board->initialize();
-            // INFO: 初期状態のスコアと手数をセッションに保持する。
+            // 初期状態のスコアと手数をセッションに保持する。
             $this->saveStateToSession();
         } else {
-            // INFO: 続きから再開する際はセッションデータを反映する。
+            // 続きから再開する際はセッションデータを反映する。
             $this->loadStateFromSession();
         }
     }
@@ -71,19 +71,19 @@ class GameController
      */
     private function processSwap(int $r1, int $c1, int $r2, int $c2): array
     {
-        // NOTE: まずは見た目通りにピースを入れ替えてマッチを確認する。
+        // まずは見た目通りにピースを入れ替えてマッチを確認する。
         $this->board->swapPieces($r1, $c1, $r2, $c2);
 
-        // INFO: 交換後の盤面にマッチが存在するか走査する。
+        // 交換後の盤面にマッチが存在するか走査する。
         $matchedCoords = $this->matchFinder->find($this->board);
 
-        // NOTE: マッチがなければ盤面を即座に元に戻す。
+        // マッチがなければ盤面を即座に元に戻す。
         if (empty($matchedCoords)) {
-            $this->board->swapPieces($r1, $c1, $r2, $c2); // NOTE: マッチしなかったため盤面を元に戻す。
+            $this->board->swapPieces($r1, $c1, $r2, $c2); // マッチしなかったため盤面を元に戻す。
             return ['status' => 'success', 'chainSteps' => []];
         }
 
-        // NOTE: マッチ成立時は連鎖処理と手数消費を開始する。
+        // マッチ成立時は連鎖処理と手数消費を開始する。
         $this->gameState->useMove();
         $chainSteps = [];
         $comboCount = 0;
@@ -91,52 +91,52 @@ class GameController
         while (!empty($matchedCoords)) {
             $comboCount++;
 
-            // INFO: 消えたピース分のスコアを反映する。
+            // 消えたピース分のスコアを反映する。
             $this->gameState->addScoreForPieces(count($matchedCoords));
 
-            // NOTE: 盤面からピースを消し、落下と補充を適用する。
+            // 盤面からピースを消し、落下と補充を適用する。
             $this->board->removePieces($matchedCoords);
             $refillData = $this->board->refill();
 
-            // INFO: フロントエンドがアニメーションできるよう結果を保存する。
+            // フロントエンドがアニメーションできるよう結果を保存する。
             $chainSteps[] = [
                 'matchedCoords' => $matchedCoords,
                 'refillData' => $refillData
             ];
 
-            // INFO: 連鎖が続くか確認するため再度マッチ探索する。
+            // 連鎖が続くか確認するため再度マッチ探索する。
             $matchedCoords = $this->matchFinder->find($this->board);
         }
 
-        // INFO: 連鎖数に応じたボーナスを追加する。
+        // 連鎖数に応じたボーナスを追加する。
         if ($comboCount > 1) {
             $this->gameState->addComboBonus($comboCount);
         }
 
-        // INFO: 最新の盤面とスコア情報をセッションに残す。
+        // 最新の盤面とスコア情報をセッションに残す。
         $this->saveStateToSession();
 
-        // INFO: フロントへ返却するゲーム状態をまとめる。
+        // フロントへ返却するゲーム状態をまとめる。
         $gameStatus = $this->gameState->getStatus();
 
-        // INFO: ハイスコア更新フラグを初期化する。
+        // ハイスコア更新フラグを初期化する。
         $isNewHighScore = false;
 
-        // NOTE: クリア・ゲームオーバー時はハイスコアを検証する。
+        // クリア・ゲームオーバー時はハイスコアを検証する。
         if ($gameStatus === GameStatus::CLEAR || $gameStatus === GameStatus::OVER) {
-            // INFO: Cookie から既存ハイスコアを取得する。
+            // Cookie から既存ハイスコアを取得する。
             $highScore = $_COOKIE['highscore'] ?? 0;
             $currentScore = $this->gameState->getScore();
 
-            // NOTE: スコアが上回った場合は Cookie を上書きする。
+            // スコアが上回った場合は Cookie を上書きする。
             if ($currentScore > $highScore) {
-                // NOTE: Cookie の有効期限を1年に設定して保持する。
+                // Cookie の有効期限を1年に設定して保持する。
                 setcookie('highscore', $currentScore, time() + (365 * 24 * 60 * 60), "/");
-                $isNewHighScore = true; // NOTE: ビュー側で演出できるようフラグを残す。
+                $isNewHighScore = true; // ビュー側で演出できるようフラグを残す。
             }
         }
 
-        // INFO: ハイスコア更新時のみセッションにフラグを記録する。
+        // ハイスコア更新時のみセッションにフラグを記録する。
         if ($isNewHighScore) {
             $_SESSION[SessionKeys::IS_NEW_HIGHSCORE] = true;
         }
@@ -146,7 +146,7 @@ class GameController
             'chainSteps' => $chainSteps,
             'score' => $this->gameState->getScore(),
             'movesLeft' => $this->gameState->getMovesLeft(),
-            'gameState' => $gameStatus->value // INFO: フロントで扱いやすいよう enum の値を渡す。
+            'gameState' => $gameStatus->value // フロントで扱いやすいよう enum の値を渡す。
         ];
     }
 

@@ -1,5 +1,5 @@
 <?php
-// INFO: SceneManager から読み込まれるリザルトシーン。
+// SceneManager から読み込まれるリザルトシーン。
 ?>
 <?php
 /**
@@ -11,7 +11,7 @@
 ?>
 <div id="result-screen" class="scene-view screen active">
     
-    <?php // INFO: 必要なデータがある場合のみ結果を描画する。 ?>
+    <?php // 必要なデータがある場合のみ結果を描画する。 ?>
     <?php if (isset($resultText)): ?>
         <h1><?= htmlspecialchars($resultText) ?></h1>
         <?php if (isset($isNewHighScore) && $isNewHighScore): ?>
