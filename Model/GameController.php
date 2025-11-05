@@ -92,7 +92,7 @@ class GameController
             // INFO: 消えたピース分のスコアを反映する。
             $this->gameState->addScoreForPieces(count($matchedCoords));
 
-            // NOTE: 盤面からピースを消し、重力と補充を適用する。
+            // NOTE: 盤面からピースを消し、落下と補充を適用する。
             $this->board->removePieces($matchedCoords);
             $refillData = $this->board->refill();
 
