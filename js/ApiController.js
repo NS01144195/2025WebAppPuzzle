@@ -1,4 +1,4 @@
-export class ApiController {
+﻿export class ApiController {
     /**
      * ピース交換のリクエストをサーバーに送信する。
      * @param {number} r1 ピース1の行
@@ -38,26 +38,32 @@ export class ApiController {
      * @returns {Promise<object>} サーバーからのレスポンスデータ
      */
     async changeScene(scene) {
-        const requestData = {
-            action: 'changeScene',
-            scene
+        // SceneManager.php が期待している "〇〇Scene" に変換
+        const actionMap = {
+            title: 'titleScene',
+            select: 'selectScene',
+            game: 'gameScene',
+            result: 'resultScene'
         };
 
-        try {
-            const response = await fetch('apiManager.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(requestData)
-            });
-
-            if (!response.ok) {
-                throw new Error(`サーバーエラー: ${response.status}`);
-            }
-
-            return await response.json();
-        } catch (error) {
-            console.error('API通信に失敗しました:', error);
-            return { status: 'error' };
+        const action = actionMap[scene];
+        if (!action) {
+            console.error(`無効なシーン指定: ${scene}`);
+            return;
         }
+
+        // フォームを生成してPOST
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = 'index.php';
+
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'action';
+        input.value = action;
+
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
     }
 }

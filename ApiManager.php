@@ -5,13 +5,6 @@ header('Content-Type: application/json');
 require_once 'Model/GameController.php';
 require_once 'Model/Util/SessionKeys.php';
 
-// Enforce POST (and allow CORS preflight/OPTIONS if needed)
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    header('Allow: POST, OPTIONS');
-    http_response_code(204);
-    exit;
-}
-
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Allow: POST');
     http_response_code(405);
@@ -29,18 +22,6 @@ if (!is_array($data) || json_last_error() !== JSON_ERROR_NONE || empty($data['ac
 }
 
 switch ($data['action']) {
-    case 'changeScene':
-        $scene = $data['scene'] ?? '';
-        $allowed = ['title', 'select', 'game', 'result'];
-        if (!in_array($scene, $allowed, true)) {
-            http_response_code(400);
-            echo json_encode(['status' => 'error', 'message' => 'Invalid scene']);
-            exit;
-        }
-        $_SESSION[SessionKeys::CURRENT_SCENE] = $scene;
-        echo json_encode(['status' => 'success']);
-        break;
-
     case 'swapPieces':
         $difficulty = $_SESSION[SessionKeys::DIFFICULTY] ?? 'normal';
         $gameController = new GameController($difficulty);
