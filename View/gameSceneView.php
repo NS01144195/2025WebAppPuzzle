@@ -1,5 +1,5 @@
 <?php
-// INFO: SceneManager から読み込まれるゲームシーンのテンプレート。
+// INFO: SceneManager から読み込まれるゲームシーン。
 ?>
 <?php
 /**

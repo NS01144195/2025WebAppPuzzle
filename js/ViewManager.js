@@ -139,18 +139,8 @@ export class ViewManager {
             this.resultOverlay.style.display = 'flex';
 
             setTimeout(() => {
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = 'index.php';
-
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = 'action';
-                input.value = 'resultScene';
-
-                form.appendChild(input);
-                document.body.appendChild(form);
-                form.submit();
+                // NOTE: メイン側に結果シーン遷移を依頼するイベントを発火
+                document.dispatchEvent(new CustomEvent('app:result'));
             }, 2000);
         }
     }

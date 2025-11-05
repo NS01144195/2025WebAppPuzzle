@@ -4,6 +4,7 @@ session_start();
 // INFO: 必要なクラスを読み込み、シーン制御とゲーム処理を利用可能にする。
 require_once 'Model/Util/SceneManager.php';
 require_once 'Model/GameController.php';
+require_once 'Model/Util/SessionKeys.php';
 
 // INFO: 現在のシーン情報を取得して表示内容を切り替える。
 $sceneManager = new SceneManager();
@@ -19,7 +20,7 @@ switch ($currentScene) {
 
     case 'game':
         // INFO: セッションに保存された難易度を利用し、未設定なら normal を使う。
-        $difficulty = $_SESSION['difficulty'] ?? 'normal';
+        $difficulty = $_SESSION[SessionKeys::DIFFICULTY] ?? 'normal';
 
         // INFO: 難易度に応じたゲーム状態をロードする。
         $gameController = new GameController($difficulty);
@@ -29,9 +30,9 @@ switch ($currentScene) {
 
     case 'result':
         // INFO: ゲーム終了時に保存した結果を読み込む。
-        $gameState = $_SESSION['gameState'] ?? 0;
-        $finalScore = $_SESSION['score'] ?? 0;
-        $movesLeft = $_SESSION['movesLeft'] ?? 0;
+        $gameState = $_SESSION[SessionKeys::GAME_STATE] ?? 0;
+        $finalScore = $_SESSION[SessionKeys::SCORE] ?? 0;
+        $movesLeft = $_SESSION[SessionKeys::MOVES_LEFT] ?? 0;
 
         // INFO: 状態に合わせて文言を切り替える。
         $resultText = match ($gameState) {
@@ -40,8 +41,8 @@ switch ($currentScene) {
             default => ''
         };
 
-        $isNewHighScore = $_SESSION['isNewHighScore'] ?? false;
-        unset($_SESSION['isNewHighScore']); // NOTE: 再表示を防ぐためにフラグを破棄する。
+        $isNewHighScore = $_SESSION[SessionKeys::IS_NEW_HIGHSCORE] ?? false;
+        unset($_SESSION[SessionKeys::IS_NEW_HIGHSCORE]); // NOTE: 再表示を防ぐためにフラグを破棄する。
         break;
 }
 

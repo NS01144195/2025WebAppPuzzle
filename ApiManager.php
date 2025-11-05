@@ -2,28 +2,55 @@
 session_start();
 header('Content-Type: application/json');
 
-// INFO: プレイヤー操作を処理するコントローラーを読み込む。
 require_once 'Model/GameController.php';
+require_once 'Model/Util/SessionKeys.php';
 
-// INFO: JSON リクエストボディを取得して配列に変換する。
-$json_data = file_get_contents('php://input');
-$data = json_decode($json_data, true);
-
-// INFO: 不正な JSON やアクション指定なしの場合はバリデーションエラーとする。
-if (!is_array($data) || json_last_error() !== JSON_ERROR_NONE || empty($data['action'])) {
-    http_response_code(400);
-    echo json_encode(['status' => 'error', 'message' => '無効なリクエストです。']);
+// Enforce POST (and allow CORS preflight/OPTIONS if needed)
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    header('Allow: POST, OPTIONS');
+    http_response_code(204);
     exit;
 }
 
-// INFO: 難易度はセッションから読み出し、未設定なら normal を使う。
-$difficulty = $_SESSION['difficulty'] ?? 'normal';
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Allow: POST');
+    http_response_code(405);
+    echo json_encode(['status' => 'error', 'message' => 'Method Not Allowed. Use POST']);
+    exit;
+}
 
-// INFO: 難易度に応じたコントローラーでアクションを処理する。
-$gameController = new GameController($difficulty);
+$json_data = file_get_contents('php://input');
+$data = json_decode($json_data, true);
 
-$response = $gameController->handlePlayerAction($data['action'], $data);
+if (!is_array($data) || json_last_error() !== JSON_ERROR_NONE || empty($data['action'])) {
+    http_response_code(400);
+    echo json_encode(['status' => 'error', 'message' => 'Invalid request']);
+    exit;
+}
 
-// INFO: コントローラーのレスポンスをそのまま返す。
-echo json_encode($response);
+switch ($data['action']) {
+    case 'changeScene':
+        $scene = $data['scene'] ?? '';
+        $allowed = ['title', 'select', 'game', 'result'];
+        if (!in_array($scene, $allowed, true)) {
+            http_response_code(400);
+            echo json_encode(['status' => 'error', 'message' => 'Invalid scene']);
+            exit;
+        }
+        $_SESSION[SessionKeys::CURRENT_SCENE] = $scene;
+        echo json_encode(['status' => 'success']);
+        break;
+
+    case 'swapPieces':
+        $difficulty = $_SESSION[SessionKeys::DIFFICULTY] ?? 'normal';
+        $gameController = new GameController($difficulty);
+        $response = $gameController->handlePlayerAction('swapPieces', $data);
+        echo json_encode($response);
+        break;
+
+    default:
+        http_response_code(400);
+        echo json_encode(['status' => 'error', 'message' => 'Unknown action']);
+        break;
+}
 ?>

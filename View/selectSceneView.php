@@ -1,3 +1,6 @@
+<?php
+// INFO: SceneManager から読み込まれるセレクトシーン。
+?>
 <div id="select-screen" class="scene-view screen active">
     <h1>ステージ選択</h1>
     <p class="highscore">ハイスコア: <?= htmlspecialchars($highScore ?? 0) ?></p>

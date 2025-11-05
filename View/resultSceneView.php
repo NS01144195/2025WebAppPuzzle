@@ -1,5 +1,5 @@
 <?php
-// INFO: SceneManager から読み込まれるリザルトシーンのテンプレート。
+// INFO: SceneManager から読み込まれるリザルトシーン。
 ?>
 <?php
 /**

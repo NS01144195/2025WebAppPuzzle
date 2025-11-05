@@ -42,10 +42,16 @@ class SceneManager
             case 'gameScene':
                 $newScene = 'game';
                 if (isset($_POST['difficulty'])) {
-                    $_SESSION['difficulty'] = $_POST['difficulty'];
+                    $_SESSION[SessionKeys::DIFFICULTY] = $_POST['difficulty'];
                 }
                 // NOTE: 新しいゲーム開始時は前回の状態を破棄する。
-                unset($_SESSION['board'], $_SESSION['score'], $_SESSION['movesLeft'], $_SESSION['gameState'], $_SESSION['isNewHighScore']);
+                unset(
+                    $_SESSION[SessionKeys::BOARD],
+                    $_SESSION[SessionKeys::SCORE],
+                    $_SESSION[SessionKeys::MOVES_LEFT],
+                    $_SESSION[SessionKeys::GAME_STATE],
+                    $_SESSION[SessionKeys::IS_NEW_HIGHSCORE]
+                );
                 break;
             case 'titleScene':
                 $newScene = 'title';

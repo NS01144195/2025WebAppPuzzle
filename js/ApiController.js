@@ -31,4 +31,33 @@ export class ApiController {
             return { status: 'error', chainSteps: [] };
         }
     }
+
+    /**
+     * シーン遷移をサーバーへ通知する
+     * @param {('title'|'select'|'game'|'result')} scene 遷移先シーン
+     * @returns {Promise<object>} サーバーからのレスポンスデータ
+     */
+    async changeScene(scene) {
+        const requestData = {
+            action: 'changeScene',
+            scene
+        };
+
+        try {
+            const response = await fetch('apiManager.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(requestData)
+            });
+
+            if (!response.ok) {
+                throw new Error(`サーバーエラー: ${response.status}`);
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('API通信に失敗しました:', error);
+            return { status: 'error' };
+        }
+    }
 }

@@ -1,5 +1,5 @@
 <?php
-// INFO: SceneManager から読み込まれるタイトルシーンのテンプレート。
+// INFO: SceneManager から読み込まれるタイトルシーン。
 ?>
 <div id="title-screen" class="scene-view screen active">
     <h1>3 MATCH PUZZLE</h1>

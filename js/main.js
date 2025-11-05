@@ -9,6 +9,36 @@ document.addEventListener('DOMContentLoaded', () => {
     const api = new ApiController();
     const view = new ViewManager();
 
+    // シーン遷移は SceneManager (index.php 経由) に委譲するため
+    // 隠しフォームで POST 送信して遷移させるユーティリティ
+    const postScene = (action, extra = {}) => {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = 'index.php';
+
+        const actionInput = document.createElement('input');
+        actionInput.type = 'hidden';
+        actionInput.name = 'action';
+        actionInput.value = action;
+        form.appendChild(actionInput);
+
+        for (const [k, v] of Object.entries(extra)) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = k;
+            input.value = v;
+            form.appendChild(input);
+        }
+
+        document.body.appendChild(form);
+        form.submit();
+    };
+
+    // リザルトシーン遷移は SceneManager へ POST で指示
+    document.addEventListener('app:result', async () => {
+        postScene('resultScene');
+    });
+
     let selectedCell = null;
     // INFO: アニメーション中の操作をブロックするフラグ。
     let isAnimating = false;
