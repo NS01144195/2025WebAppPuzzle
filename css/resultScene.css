@@ -1,14 +1,16 @@
-/* ===== resultScene ===== */
+/* ===== リザルト画面: スコアとステータス表示のスタイル設定 ===== */
 #result-screen h1 {
     font-size: 64px;
     margin-bottom: 40px;
 }
 
+/* ===== リザルト詳細: 最終結果のテキスト表示設定 ===== */
 #result-screen p {
     font-size: 40px;
     margin-bottom: 10px;
 }
 
+/* ===== ハイスコア演出: 新記録時の強調表示設定 ===== */
 .new-highscore {
     font-size: 48px;
     color: #ffd700; /* ゴールド */
@@ -18,6 +20,7 @@
     animation: blink-animation 1.5s infinite;
 }
 
+/* ===== ハイスコア演出: 点滅エフェクトのアニメーション指定 ===== */
 @keyframes blink-animation {
     0% { opacity: 1; }
     50% { opacity: 0.5; }

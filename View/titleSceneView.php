@@ -13,6 +13,10 @@
         <button type="submit" id="reset-button">ハイスコアをリセット(デバッグ用)</button>
     </form>
     <script>
+        /**
+         * デバッグ用パスワードを入力させて検証する。
+         * @returns {boolean}
+         */
         function checkDebugPassword() {
             // INFO: prompt でパスワードを受け取り、デバッグ機能を制御する。
             const input = prompt("デバッグ用のパスワードを入力してください:");

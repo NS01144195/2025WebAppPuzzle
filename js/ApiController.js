@@ -33,12 +33,12 @@
     }
 
     /**
-     * シーン遷移をサーバーへ通知する
+     * シーン遷移をサーバーへ通知する。
      * @param {('title'|'select'|'game'|'result')} scene 遷移先シーン
-     * @returns {Promise<object>} サーバーからのレスポンスデータ
+     * @returns {Promise<void>}
      */
     async changeScene(scene) {
-        // SceneManager.php が期待している "〇〇Scene" に変換
+        // INFO: SceneManager.php が期待している "〇〇Scene" に変換する。
         const actionMap = {
             title: 'titleScene',
             select: 'selectScene',
@@ -48,11 +48,11 @@
 
         const action = actionMap[scene];
         if (!action) {
-            console.error(`無効なシーン指定: ${scene}`);
+            console.error(`無効なシーン指定: ${scene}`); // NOTE: 定義外のシーンには何もしない。
             return;
         }
 
-        // フォームを生成してPOST
+        // INFO: フォームを生成して POST する事で既存の PHP フローを再利用する。
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = 'index.php';

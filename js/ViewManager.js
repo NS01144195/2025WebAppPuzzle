@@ -1,4 +1,8 @@
 export class ViewManager {
+    /**
+     * @constructor
+     * UI 要素の参照を取得して初期化する。
+     */
     constructor() {
         this.boardElement = document.getElementById('puzzle-board');
         this.scoreElement = document.getElementById('score-value');
@@ -9,7 +13,7 @@ export class ViewManager {
 
     /**
      * 指定されたセルのピース要素を取得する。
-     * @param {HTMLElement} cell 
+     * @param {HTMLElement} cell
      * @returns {HTMLElement | null}
      */
     getPiece(cell) {
@@ -18,7 +22,8 @@ export class ViewManager {
 
     /**
      * スコア表示を更新する。
-     * @param {number} newScore 
+     * @param {number} newScore
+     * @returns {void}
      */
     updateScore(newScore) {
         if (this.scoreElement) this.scoreElement.textContent = newScore;
@@ -26,7 +31,8 @@ export class ViewManager {
 
     /**
      * 残り手数表示を更新する。
-     * @param {number} newMoves 
+     * @param {number} newMoves
+     * @returns {void}
      */
     updateMoves(newMoves) {
         if (this.movesElement) this.movesElement.textContent = newMoves;
@@ -34,7 +40,8 @@ export class ViewManager {
 
     /**
      * ピースを選択状態のデザインにする。
-     * @param {HTMLElement} piece 
+     * @param {HTMLElement} piece
+     * @returns {void}
      */
     selectPiece(piece) {
         if (piece) piece.classList.add('selected');
@@ -42,7 +49,8 @@ export class ViewManager {
 
     /**
      * ピースの選択状態を解除する。
-     * @param {HTMLElement} piece 
+     * @param {HTMLElement} piece
+     * @returns {void}
      */
     deselectPiece(piece) {
         if (piece) piece.classList.remove('selected');
@@ -50,8 +58,9 @@ export class ViewManager {
 
     /**
      * 2つのピースを交換するアニメーション。
-     * @param {HTMLElement} piece1 
-     * @param {HTMLElement} piece2 
+     * @param {HTMLElement} piece1
+     * @param {HTMLElement} piece2
+     * @returns {Promise<void>}
      */
     async animateSwap(piece1, piece2) {
         if (!piece1 || !piece2) return;
@@ -78,7 +87,8 @@ export class ViewManager {
 
     /**
      * マッチしたピースを消すアニメーション。
-     * @param {Array<object>} matchedCoords 
+     * @param {Array<object>} matchedCoords
+     * @returns {Promise<void>}
      */
     async animateRemove(matchedCoords) {
         const piecesToRemove = [];
@@ -105,7 +115,8 @@ export class ViewManager {
 
     /**
      * ピースの落下と補充のアニメーション。
-     * @param {object} refillData 
+     * @param {object} refillData
+     * @returns {Promise<void>}
      */
     async animateFallAndRefill(refillData) {
         // NOTE: 補充前にピースを落下させる。
@@ -131,7 +142,8 @@ export class ViewManager {
 
     /**
      * リザルト画面を表示し、指定秒数後にリダイレクトする。
-     * @param {string} message 
+     * @param {string} message
+     * @returns {void}
      */
     showResult(message) {
         if (this.resultOverlay && this.resultMessage) {
