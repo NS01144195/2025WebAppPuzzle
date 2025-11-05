@@ -55,20 +55,6 @@
     animation: slideUp 0.5s ease-out forwards;
 }
 
-/* ===== クリアスコア: スコア表示のスタイル設定 ===== */
-#result-overlay #result-message .score {
-    font-size: 32px;
-    color: #2ecc71;
-    margin-top: 10px;
-}
-
-/* ===== クリアタイム: 経過時間表示のスタイル設定 ===== */
-#result-overlay #result-message .time {
-    font-size: 24px;
-    color: #3498db;
-    margin-top: 5px;
-}
-
 /* ===== アニメーション: フェードイン効果 ===== */
 @keyframes fadeIn {
     from {
@@ -141,13 +127,6 @@
 #game-screen #puzzle-board .piece.selected {
     transform: scale(0.95);
     border: 2px solid #ffffff4d;
-}
-
-/* ===== 新規ピース: 新しく追加されるピースのアニメーション設定 ===== */
-#game-screen #puzzle-board .piece.new {
-    transform: translateY(-200%);
-    opacity: 0;
-    box-shadow: 0 0 20px #ffffffb3;
 }
 
 /* ===== ピース消滅: マッチしたピースの消滅アニメーション設定 ===== */
