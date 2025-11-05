@@ -8,6 +8,7 @@ class Board
 
     /**
      * 指定サイズの空盤面を生成する。
+     * @param int $size 盤面の一辺の長さ
      */
     public function __construct(int $size = 9)
     {
@@ -17,6 +18,7 @@ class Board
 
     /**
      * 盤面のサイズを返す。
+     * @return int
      */
     public function getSize(): int
     {
@@ -25,6 +27,7 @@ class Board
 
     /**
      * 盤面全体の状態を返す。
+     * @return array
      */
     public function getGrid(): array
     {
@@ -33,6 +36,8 @@ class Board
 
     /**
      * 盤面全体を上書きする。
+     * @param array $grid 新しい盤面データ
+     * @return void
      */
     public function setGrid(array $grid): void
     {
@@ -41,6 +46,7 @@ class Board
 
     /**
      * マッチが発生しないように盤面を初期化する。
+     * @return void
      */
     public function initialize(): void
     {
@@ -56,6 +62,9 @@ class Board
     
     /**
      * 初期配置でマッチが発生しているかチェックする。
+     * @param int $r 行番号
+     * @param int $c 列番号
+     * @return bool
      */
     private function hasInitialMatch(int $r, int $c): bool
     {
@@ -67,6 +76,11 @@ class Board
 
     /**
      * 指定した2つのピースを交換する。
+     * @param int $r1 ピース1の行
+     * @param int $c1 ピース1の列
+     * @param int $r2 ピース2の行
+     * @param int $c2 ピース2の列
+     * @return void
      */
     public function swapPieces(int $r1, int $c1, int $r2, int $c2): void
     {
@@ -77,6 +91,8 @@ class Board
 
     /**
      * 指定した座標のピースを削除する。
+     * @param array $coords 削除対象の座標配列
+     * @return void
      */
     public function removePieces(array $coords): void
     {

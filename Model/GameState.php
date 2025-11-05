@@ -18,6 +18,7 @@ class GameState
 
     /**
      * 選択された難易度に応じて初期状態を構築する。
+     * @param string $difficulty 難易度キー
      */
     public function __construct(string $difficulty = self::DEFAULT_DIFFICULTY)
     {
@@ -29,6 +30,7 @@ class GameState
 
     /**
      * 現在のスコアを返す。
+     * @return int
      */
     public function getScore(): int
     {
@@ -37,6 +39,7 @@ class GameState
 
     /**
      * 残り手数を返す。
+     * @return int
      */
     public function getMovesLeft(): int
     {
@@ -45,12 +48,13 @@ class GameState
 
     /**
      * クリア条件となる目標スコアを返す。
+     * @return int
      */
     public function getTargetScore(): int
     {
         return $this->targetScore;
     }
-    
+
     /**
      * 現在のゲーム状態（プレイ中, クリア, オーバー）を判定して返す。
      * @return GameStatus
@@ -68,6 +72,8 @@ class GameState
 
     /**
      * 現在のスコアを上書きする。
+     * @param int $score 新しいスコア
+     * @return void
      */
     public function setScore(int $score): void
     {
@@ -76,6 +82,8 @@ class GameState
 
     /**
      * 残り手数を上書きする。
+     * @param int $moves 新しい残り手数
+     * @return void
      */
     public function setMovesLeft(int $moves): void
     {
@@ -84,6 +92,8 @@ class GameState
 
     /**
      * 消したピース数に応じてスコアを加算する。
+     * @param int $pieceCount ピース数
+     * @return void
      */
     public function addScoreForPieces(int $pieceCount): void
     {
@@ -92,6 +102,8 @@ class GameState
 
     /**
      * 連鎖数に応じたコンボボーナスを加算する。
+     * @param int $comboCount 連鎖数
+     * @return void
      */
     public function addComboBonus(int $comboCount): void
     {
@@ -100,6 +112,7 @@ class GameState
 
     /**
      * 残り手数を1消費する。
+     * @return void
      */
     public function useMove(): void
     {

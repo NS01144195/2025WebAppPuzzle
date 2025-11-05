@@ -1,6 +1,10 @@
 import { ApiController } from './ApiController.js';
 import { ViewManager } from './ViewManager.js';
 
+/**
+ * ページ読み込み完了後にゲームロジックを初期化する。
+ * @returns {void}
+ */
 document.addEventListener('DOMContentLoaded', () => {
 
     const boardElement = document.getElementById('puzzle-board');
@@ -10,6 +14,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const view = new ViewManager();
 
     // リザルトシーン遷移は main から ApiController 経由で実施
+    /**
+     * リザルト表示完了後にシーン変更を要求する。
+     * @returns {Promise<void>}
+     */
     document.addEventListener('app:result', async () => {
         await api.changeScene('result');
     });
@@ -33,6 +41,11 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // INFO: クリック操作を受け付けるイベントリスナー。
+    /**
+     * 盤面クリック時の入れ替え処理を実行する。
+     * @param {MouseEvent} event
+     * @returns {Promise<void>}
+     */
     boardElement.addEventListener('click', async (event) => {
         if (isAnimating) return; // NOTE: アニメーション中は入力を無効化する。
 

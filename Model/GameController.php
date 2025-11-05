@@ -14,6 +14,7 @@ class GameController
 
     /**
      * 難易度に応じたゲーム管理オブジェクトを初期化する。
+     * @param string $difficulty 選択された難易度
      */
     public function __construct(string $difficulty = 'normal')
     {
@@ -24,6 +25,7 @@ class GameController
 
     /**
      * ゲーム画面の準備を行う。
+     * @return void
      */
     public function prepareGame(): void
     {
@@ -150,6 +152,7 @@ class GameController
 
     /**
      * セッションからゲーム状態をロードする。
+     * @return void
      */
     private function loadStateFromSession(): void
     {
@@ -162,6 +165,7 @@ class GameController
 
     /**
      * 現在のゲーム状態をセッションに保存する。
+     * @return void
      */
     private function saveStateToSession(): void
     {
@@ -173,7 +177,8 @@ class GameController
 
     /**
      * Viewに渡すためのデータを返す。
-    */
+     * @return array
+     */
     public function getViewData(): array
     {
         return [
@@ -186,6 +191,8 @@ class GameController
 
     /**
      * swapPieces リクエストの入力値を検証する。
+     * @param array $data リクエストボディ
+     * @return bool
      */
     private function isValidSwapRequest(array $data): bool
     {

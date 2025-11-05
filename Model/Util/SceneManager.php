@@ -15,6 +15,7 @@ class SceneManager
 
     /**
      * POSTリクエストを処理してシーンを切り替える。
+     * @return void
      */
     private function handleRequest(): void
     {

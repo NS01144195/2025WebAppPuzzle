@@ -11,7 +11,8 @@ enum PieceColor: string
     case Purple = '#9B59B6';  // フラットな紫
 
     /**
-     * ランダムな色を返す静的メソッド
+     * ランダムな色を返す静的メソッド。
+     * @return string
      */
     public static function getRandomColor(): string
     {
