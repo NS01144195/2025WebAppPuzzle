@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/Util/Enums.php';
+require_once 'Util/Enums.php';
 
 class Board
 {

@@ -1,9 +1,9 @@
 <?php
-require_once __DIR__ . '/Util/Enums.php';
-require_once __DIR__ . '/Util/SessionKeys.php';
-require_once __DIR__ . '/GameState.php';
-require_once __DIR__ . '/Board.php';
-require_once __DIR__ . '/MatchFinder.php';
+require_once 'Util/Enums.php';
+require_once 'Util/SessionKeys.php';
+require_once 'GameState.php';
+require_once 'Board.php';
+require_once 'MatchFinder.php';
 
 class GameController
 {
